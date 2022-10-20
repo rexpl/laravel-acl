@@ -1,0 +1,306 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Rexpl\LaravelAcl;
+
+use Rexpl\LaravelAcl\Models\GroupUser;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Collection;
+
+class User
+{
+    /**
+     * Saves the already set instances.
+     * 
+     * @var array
+     */
+    protected static $users = [];
+
+
+    /**
+     * @param int $id
+     * @param array $permissions
+     * @param array $groups
+     * 
+     * @return void
+     */
+    public function __construct(
+        protected int $id = 0,
+        protected array $permissions = [],
+        protected array $groups = [],
+        protected ?Group $userGroup = null
+    ) {}
+
+
+    /**
+     * See if the user has the permission.
+     * 
+     * @param string $name
+     * 
+     * @return bool
+     */
+    public function canWithPermission(string $name): bool
+    {
+        return in_array($name, $this->permissions);
+    }
+
+
+    /**
+     * Returns all child groups (ids).
+     * 
+     * @return array
+     */
+    public function groups(): array
+    {
+        return $this->groups;
+    }
+
+
+    /**
+     * Returns all the permissions the user can use.
+     * 
+     * @return array
+     */
+    public function permissions(): array
+    {
+        return $this->permissions;
+    }
+
+
+    /**
+     * Returns the users personal group.
+     * 
+     * @return Group
+     */
+    public function userGroup(): Group
+    {
+        return $this->userGroup ?? $this->initiateUserGroup();
+    }
+
+
+    /**
+     * Initiates the users personal group.
+     * 
+     * @return Group
+     */
+    protected function initiateUserGroup(): Group
+    {
+        $this->userGroup = Group::findUserGroup($this->id);
+
+        return $this->userGroup;
+    }
+
+
+    /**
+     * Add the group to the user.
+     * 
+     * @param Group|int $group
+     * 
+     * @return void
+     */
+    public function addGroup(Group|int $group): void
+    {
+        if (is_int($group)) $group = Group::find($group);
+
+        $newUserGroup = new GroupUser();
+
+        $newUserGroup->user_id = $this->id;
+        $newUserGroup->group_id = $group->id;
+
+        $newUserGroup->save();
+    }
+
+
+    /**
+     * Remove group from the user.
+     * 
+     * @param Group|int $group
+     * 
+     * @return void
+     */
+    public function removeGroup(Group|int $group): void
+    {
+        if (is_int($group)) $group = Group::find($group);
+
+        GroupUser::where('user_id', $this->id)
+            ->where('group_id', $group->id)
+            ->delete();
+    }
+
+
+    /**
+     * Returns all the groups where the user is in.
+     * 
+     * @return Collection
+     */
+    public function allGroups(): Collection
+    {
+        return GroupUser::where('user_id', $this->id)->get()->load('group');
+    }
+
+
+    /**
+     * Returns all the parent groups of the user.
+     * 
+     * @param array $groups
+     * @param int $nFactor
+     * 
+     * @return array
+     */
+    protected static function groupParentGroups(array $groups, int $nFactor): array
+    {
+        $query = DB::table('acl_parent_groups')
+            ->select(DB::raw('`child_id`, `parent_id`, 1'))
+            ->whereIn('child_id', $groups)
+            ->unionAll(
+                DB::table('acl_parent_groups as e')
+                    ->select(DB::raw('`e`.`child_id`, `e`.`parent_id`, `ep`.`n` + 1'))
+                    ->join('cte as ep', 'ep.parent_id', '=', 'e.child_id')
+                    ->where('ep.n', '<', $nFactor)
+            );
+
+        $allParentGroups = DB::table('cte')
+            ->select('parent_id')
+            ->withRecursiveExpression('cte', $query, ['child_id', 'parent_id', 'n'])
+            ->get();
+
+        return array_map(
+            function ($value)
+            {
+                return $value->parent_id;
+            },
+            $allParentGroups->unique()->toArray()
+        );
+    }
+
+
+    /**
+     * Return all the child groups of the user.
+     * 
+     * @param array $groups
+     * @param int $nFactor
+     * 
+     * @return array
+     */
+    protected static function groupChildGroups(array $groups, int $nFactor): array
+    {
+        $query = DB::table('acl_parent_groups')
+            ->select(DB::raw('`child_id`, `parent_id`, 1'))
+            ->whereIn('parent_id', $groups)
+            ->unionAll(
+                DB::table('acl_parent_groups as e')
+                    ->select(DB::raw('`e`.`child_id`, `e`.`parent_id`, `ep`.`n` + 1'))
+                    ->join('cte as ep', 'ep.child_id', '=', 'e.parent_id')
+                    ->where('ep.n', '<', $nFactor)
+            );
+
+        $allChildGroups = DB::table('cte')
+            ->select('child_id')
+            ->withRecursiveExpression('cte', $query, ['child_id', 'parent_id', 'n'])
+            ->get();
+
+        return array_map(
+            function ($value)
+            {
+                return $value->child_id;
+            },
+            $allChildGroups->unique()->toArray()
+        );
+    }
+
+
+    /**
+     * Fetches all the permission of the groups.
+     * 
+     * @param array $group
+     * 
+     * @return array
+     */
+    protected static function fetchAllGroupsPermissions(array $groups): array
+    {
+        $allPermissions = DB::table('acl_group_permissions as g')
+            ->select('p.name')
+            ->join('acl_permissions as p', 'g.permission_id', '=', 'p.id')
+            ->whereIn('g.group_id', $groups)
+            ->get();
+
+        return array_map(
+            function ($value)
+            {
+                return $value->name;
+            },
+            $allPermissions->unique()->toArray()
+        );
+    }
+
+
+    /**
+     * Collect all user data.
+     * 
+     * @param int $idUser
+     * 
+     * @return array
+     */
+    protected static function getUserInfo(int $idUser): array
+    {
+        $allUserGroups = array_map(
+            function ($value)
+            {
+                return $value['group_id'];
+            },
+            GroupUser::where('user_id', $idUser)->get()->toArray()
+        );
+        $nFactor = (int) config('acl.nFactor', 3);
+
+        $allChilds = array_unique(array_merge(
+            $allUserGroups,    
+            static::groupChildGroups($allUserGroups, $nFactor)
+        ));
+
+        $allParents = array_unique(array_merge(
+            $allUserGroups,    
+            static::groupParentGroups($allUserGroups, $nFactor)
+        ));
+        $allPermissions = static::fetchAllGroupsPermissions($allParents);
+
+        return [
+            'groups' => $allChilds,
+            'permissions' => $allPermissions,
+        ];
+    }
+
+
+    /**
+     * Returns the user instance from database or from the cache.
+     * 
+     * @param int $idUser
+     * 
+     * @return User
+     */
+    public static function find(int $idUser): static
+    {
+        if (isset(static::$users[$idUser])) return static::$users[$idUser];
+
+        if (config('acl.cache', true)) {
+
+            $values = Cache::remember(
+                'rexpl_acl_user_' . $idUser,
+                config('acl.duration', 604800),
+                function () use ($idUser): array
+                {
+                    return static::getUserInfo($idUser);
+                }
+            );
+        }
+        else {
+
+            $values = static::getUserInfo($idUser);
+        }        
+
+        static::$users[$idUser] = new static($idUser, $values['permissions'], $values['groups']);
+
+        return static::$users[$idUser];
+    }
+}
