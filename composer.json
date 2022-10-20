@@ -18,5 +18,12 @@
         "php": "^8.1",
         "illuminate/support": "^9.35",
         "staudenmeir/laravel-cte": "^1.6"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rexpl\\LaravelAcl\\ServiceProviders\\AclServiceProviders"
+            ]
+        }
     }
 }
