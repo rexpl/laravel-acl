@@ -1,6 +1,6 @@
 {
     "name": "rexpl/laravel-acl",
-    "description": "Extensive acl for laravel.",
+    "description": "Extensive acl for laravel, including groups and permissions.",
     "type": "package",
     "license": "MIT",
     "autoload": {
