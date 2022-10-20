@@ -22,7 +22,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Rexpl\\LaravelAcl\\ServiceProviders\\AclServiceProviders"
+                "Rexpl\\LaravelAcl\\ServiceProvider\\AclServiceProvider"
             ]
         }
     }
