@@ -24,6 +24,10 @@ class AclServiceProvider extends ServiceProvider
                 return User::find(Auth::id());
             }
         );
+
+        $this->mergeConfigFrom(
+            __DIR__.'/../../config/acl.php', 'acl'
+        );
     }
 
 
