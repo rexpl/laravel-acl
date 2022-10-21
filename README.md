@@ -4,6 +4,8 @@ Extensive acl for laravel, including groups and permissions. This package aims t
 
 - [Main concept](#main-concept)
 - [Installation](#installation)
+- [Documentation](/docs/README.md)
+- [Changelog](https://github.com/rexpl/laravel-acl/releases)
 
 ## Main concept
 
