@@ -8,6 +8,11 @@ return [
     'nFactor' => 3,
 
     /**
+     * Automatically make gates for each permission.
+     */
+    'gates' => true,
+
+    /**
      * Cache user's acl. (highly recommended)
      */
     'cache' => true,

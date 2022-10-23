@@ -118,4 +118,20 @@ class Acl
     {
         return Permission::all();
     }
+
+
+    /**
+     * Build gates on package boot.
+     * 
+     * @return void
+     */
+    public static function buildGates(): void
+    {
+        foreach (Permission::all() as $permission) {
+            
+            Gate::define($permission->name, function(UserModel $user) use ($permission) {
+                return User::find($user->id)->canWithPermission($permission->name);
+            });
+        }
+    }
 }
