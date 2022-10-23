@@ -303,4 +303,38 @@ class User
 
         return static::$users[$idUser];
     }
+
+
+    /**
+     * Creates a new user.
+     * 
+     * @param int $id
+     * 
+     * @return static
+     */
+    public static function new(int $id): static
+    {
+        $group = Group::new($id, true);
+
+        $user = new GroupUser();
+        $user->group_id = $group->id();
+        $user->user_id = $id;
+        $user->save();
+
+        return new static($id, [], [], $group);
+    }
+
+
+    /**
+     * Deletes a user.
+     * 
+     * @param int $id
+     * @param bool $clean
+     * 
+     * @return void
+     */
+    public static function delete(int $id, bool $clean): void
+    {
+        Group::delete($id, $clean, true);
+    }
 }

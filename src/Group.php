@@ -232,12 +232,15 @@ class Group
      * 
      * @param int $id
      * @param bool $clean
+     * @param bool $user
      * 
      * @return void
      */
-    public static function delete(int $id, bool $clean = true): void
+    public static function delete(int $id, bool $clean = true, bool $user = false): void
     {
-        $group = GroupModel::find($id);
+        $group = $user
+            ? GroupModel::find($id)
+            : GroupModel::firstWhere('user_id', $id);
 
         if ($clean) {
 
@@ -248,7 +251,7 @@ class Group
                 ->orWhere('parent_id', $group->id)->delete();
         }
 
-        $group->id;
+        $group->delete();
     }
 
 

@@ -36,9 +36,36 @@ class Acl
      * 
      * @return User
      */
-    public function user(int $id): User
+    public static function user(int $id): User
     {
         return User::find($id);
+    }
+
+
+    /**
+     * Creates a new user.
+     * 
+     * @param int $id
+     * 
+     * @return User
+     */
+    public static function newUser(int $id): User
+    { 
+        return User::new($id);
+    }
+
+
+    /**
+     * Delete a user by id.
+     * 
+     * @param int $id
+     * @param bool $clean
+     * 
+     * @return void
+     */
+    public static function deleteUser(int $id, bool $clean = true): void
+    {
+        Group::delete($id, $clean, true);
     }
 
 
@@ -49,7 +76,7 @@ class Acl
      * 
      * @return Group
      */
-    public function group(int $id): Group
+    public static function group(int $id): Group
     {
         return Group::find($id);
     }
@@ -62,7 +89,7 @@ class Acl
      * 
      * @return Group
      */
-    public function newGroup(string $name): Group
+    public static function newGroup(string $name): Group
     {
         return Group::new($name);
     }
@@ -89,7 +116,7 @@ class Acl
      * 
      * @return int
      */
-    public function newPermission(string $name): int
+    public static function newPermission(string $name): int
     {
         $permission = new Permission();
         $permission->name = $name;
@@ -113,7 +140,7 @@ class Acl
      * 
      * @return void
      */
-    public function deletePermission(int $id): void
+    public static function deletePermission(int $id): void
     {
         Permission::destroy($id);
     }
@@ -126,7 +153,7 @@ class Acl
      * 
      * @return string|null
      */
-    public function permissionName(int $id): ?string
+    public static function permissionName(int $id): ?string
     {
         return Permission::find($id)->name;
     }
@@ -139,7 +166,7 @@ class Acl
      * 
      * @return int|null
      */
-    public function permissionID(string $name): ?int
+    public static function permissionID(string $name): ?int
     {
         return Permission::firstWhere('name', $name)->id;
     }
@@ -150,7 +177,7 @@ class Acl
      * 
      * @return Collection
      */
-    public function permissions(): Collection
+    public static function permissions(): Collection
     {
         return Permission::all();
     }
