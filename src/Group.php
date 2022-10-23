@@ -9,6 +9,8 @@ use Rexpl\LaravelAcl\Models\Group as GroupModel;
 use Rexpl\LaravelAcl\Models\ParentGroup;
 use Rexpl\LaravelAcl\Models\GroupPermission;
 use Rexpl\LaravelAcl\Models\Permission;
+use Rexpl\LaravelAcl\Models\GroupDependency;
+use Rexpl\LaravelAcl\Models\GroupUser;
 
 class Group
 {
@@ -20,6 +22,17 @@ class Group
     public function __construct(
         protected GroupModel $group
     ) {}
+
+
+    /**
+     * Returns the group id.
+     * 
+     * @return int
+     */
+    public function id(): int
+    {
+        return $this->group->id;
+    }
 
 
     /**
@@ -211,5 +224,82 @@ class Group
     public static function findUserGroup(int $id): static
     {
         return new static(GroupModel::firstWhere('user_id', $id));
+    }
+
+
+    /**
+     * Deletes the group by ID.
+     * 
+     * @param int $id
+     * @param bool $clean
+     * 
+     * @return void
+     */
+    public static function delete(int $id, bool $clean = true): void
+    {
+        $group = GroupModel::find($id);
+
+        if ($clean) {
+
+            GroupUser::where('group_id', $group->id)->delete();
+            GroupDependency::where('group_id', $group->id)->delete();
+            GroupPermission::where('group_id', $group->id)->delete();
+            ParentGroup::where('child_id', $group->id)
+                ->orWhere('parent_id', $group->id)->delete();
+        }
+
+        $group->id;
+    }
+
+
+    /**
+     * Creates new group.
+     * 
+     * @param string|int $nameORuserId
+     * @param bool $user
+     * 
+     * @return static
+     */
+    public static function new(string|int $nameORuserId, bool $user = false): static
+    {
+        $group = new GroupModel();
+
+        if ($user) return static::createNewUserGroup($group, $nameORuserId);
+
+        return static::createNewGroup($group, $nameORuserId);
+    }
+
+
+    /**
+     * Creates new user group.
+     * 
+     * @param GroupModel $group
+     * @param string $name       
+     * 
+     * @return static
+     */
+    protected static function createNewGroup(GroupModel $group, string $name): static
+    {
+        $group->name = $name;
+        $group->save();
+
+        return new static($group);
+    }
+
+
+    /**
+     * Creates new user group.
+     * 
+     * @param GroupModel $group
+     * @param int $id
+     * 
+     * @return static
+     */
+    protected static function createNewUserGroup(GroupModel $group, int $id): static
+    {
+        $group->user_id = $id;
+        $group->save();
+
+        return new static($group);
     }
 }

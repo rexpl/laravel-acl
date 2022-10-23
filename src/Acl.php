@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl;
 
+use App\Models\User as UserModel;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Database\Eloquent\Collection;
 use Rexpl\LaravelAcl\Models\Permission;
 
@@ -54,6 +56,33 @@ class Acl
 
 
     /**
+     * Creates a new group.
+     * 
+     * @param string $name
+     * 
+     * @return Group
+     */
+    public function newGroup(string $name): Group
+    {
+        return Group::new($name);
+    }
+
+
+    /**
+     * Deletes a group by id.
+     * 
+     * @param int $id
+     * @param bool $clean
+     * 
+     * @return void
+     */
+    public static function deleteGroup(int $id, bool $clean = true): void
+    {
+        Group::delete($id, $clean);
+    }
+
+
+    /**
      * Create new permission. Return id.
      * 
      * @param string $name
@@ -65,6 +94,13 @@ class Acl
         $permission = new Permission();
         $permission->name = $name;
         $permission->save();
+
+        if (config('acl.gates', true)) {
+
+            Gate::define($name, function(UserModel $user) use ($name) {
+                return User::find($user->id)->canWithPermission($name);
+            });
+        }
 
         return $permission->id;
     }
@@ -84,26 +120,26 @@ class Acl
 
 
     /**
-     * Returns the permission name.
+     * Returns the permission name. Returns null if permission not found.
      * 
      * @param int $id
      * 
-     * @return string
+     * @return string|null
      */
-    public function permissionName(int $id): string
+    public function permissionName(int $id): ?string
     {
         return Permission::find($id)->name;
     }
 
 
     /**
-     * Returns the permission id.
+     * Returns the permission id. Returns null if permission not found.
      * 
      * @param string $name
      * 
-     * @return int
+     * @return int|null
      */
-    public function permissionID(string $name): int
+    public function permissionID(string $name): ?int
     {
         return Permission::firstWhere('name', $name)->id;
     }
