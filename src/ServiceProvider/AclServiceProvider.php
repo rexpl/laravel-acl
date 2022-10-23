@@ -6,6 +6,7 @@ namespace Rexpl\LaravelAcl\ServiceProvider;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use Rexpl\LaravelAcl\Acl;
 use Rexpl\LaravelAcl\User;
 
 class AclServiceProvider extends ServiceProvider
@@ -61,6 +62,8 @@ class AclServiceProvider extends ServiceProvider
                 __DIR__.'/../../config/acl.php' => config_path('acl.php'),
             ], 'config');
         }
+
+        if (config('acl.gates', true)) Acl::buildGates();
     
         $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
     }
