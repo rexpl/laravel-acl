@@ -3,11 +3,11 @@
 namespace Rexpl\LaravelAcl\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+// use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class GroupPermission extends Model
 {
-    use HasFactory;
+    // use HasFactory;
     
     /**
      * The table associated with the model.

@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('acl_parent_groups', function (Blueprint $table) {
             $table->id();
-            $table->integer('child_id');
-            $table->integer('parent_id');
+            $table->foreignId('child_id');
+            $table->foreignId('parent_id');
         });
     }
     

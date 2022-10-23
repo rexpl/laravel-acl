@@ -16,9 +16,10 @@ return new class extends Migration
         Schema::create('acl_group_dependencies', function (Blueprint $table) {
             $table->id();
             $table->string('ressource');
-            $table->integer('ressource_id');
-            $table->integer('group_id');
-            $table->integer('permission_level');
+            $table->foreignId('ressource_id');
+            $table->foreignId('group_id');
+            $table->tinyInteger('permission_level');
+            $table->index(['ressource', 'ressource_id']);
         });
     }
     

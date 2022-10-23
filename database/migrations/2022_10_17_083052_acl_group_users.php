@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('acl_group_users', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id');
-            $table->integer('group_id');
+            $table->foreignId('user_id');
+            $table->foreignId('group_id');
         });
     }
     
