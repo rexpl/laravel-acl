@@ -10,23 +10,93 @@ use Illuminate\Database\Eloquent\Collection;
 use Rexpl\LaravelAcl\Models\Permission;
 
 class Acl
-{
+{   
     /**
+     * Delete permission level.
+     * 
+     * @var int
+     */
+    public const __D = 1;
+
+
+    /**
+     * Write permission level.
+     * 
+     * @var int
+     */
+    public const _W_ = 2;
+
+
+    /**
+     * Write and delete permission level.
+     * 
+     * @var int
+     */
+    public const _WD = 3;
+
+
+    /**
+     * Read permission level.
+     * 
+     * @var int
+     */
+    public const R__ = 4;
+
+
+    /**
+     * Read and delete permission level.
+     * 
+     * @var int
+     */
+    public const R_D = 5;
+
+
+    /**
+     * Read and write permission level.
+     * 
+     * @var int
+     */
+    public const RW_ = 6;
+
+
+    /**
+     * Read, write and delete permission level.
+     * 
+     * @var int
+     */
+    public const RWD = 7;
+
+
+    /**
+     * Permission levels wich contain read permission.
+     * 
      * @var array
      */
     public const READ = [4, 5, 6, 7];
 
 
     /**
+     * Permission levels wich contain write permission.
+     * 
      * @var array
      */
     public const WRITE = [2, 3, 6, 7];
 
 
     /**
+     * Permission levels wich contain delete permission.
+     * 
      * @var array
      */
     public const DELETE = [1, 3, 5, 7];
+
+
+    /**
+     * All allowed numbers.
+     * 
+     * @var array
+     */
+    public const RANGE = [1, 2, 3, 4, 5, 6, 7];
 
 
     /**
@@ -106,6 +176,48 @@ class Acl
     public static function deleteGroup(int $id, bool $clean = true): void
     {
         Group::delete($id, $clean);
+    }
+
+
+    /**
+     * Returns a record.
+     * 
+     * @param string $acronym
+     * @param int $id
+     * 
+     * @return Record
+     */
+    public static function record(string $acronym, int $id): Record
+    {
+        return new Record($acronym, $id);
+    }
+
+
+    /**
+     * Creates new record.
+     * 
+     * @param string $acronym
+     * @param int $id
+     * 
+     * @return Record
+     */
+    public static function newRecord(string $acronym, int $id): Record
+    {
+        return Record::new($acronym, $id, []);
+    }
+
+
+    /**
+     * Deletes record.
+     * 
+     * @param string $acronym
+     * @param int $id
+     * 
+     * @return void
+     */
+    public static function deleteRecord(string $acronym, int $id): void
+    {
+        Record::delete($acronym, $id);
     }
 
 

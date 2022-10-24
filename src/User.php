@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl;
 
-use Rexpl\LaravelAcl\Models\GroupUser;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Collection;
+use Rexpl\LaravelAcl\Exceptions\UnknownPermissionLevel;
+use Rexpl\LaravelAcl\Models\StdAcl;
+use Rexpl\LaravelAcl\Models\GroupUser;
 
 class User
 {
@@ -30,6 +32,7 @@ class User
         protected int $id = 0,
         protected array $permissions = [],
         protected array $groups = [],
+        protected array $stdAcl = [],
         protected ?Group $userGroup = null
     ) {}
 
@@ -107,7 +110,7 @@ class User
         $newUserGroup = new GroupUser();
 
         $newUserGroup->user_id = $this->id;
-        $newUserGroup->group_id = $group->id;
+        $newUserGroup->group_id = $group->id();
 
         $newUserGroup->save();
     }
@@ -125,7 +128,7 @@ class User
         if (is_int($group)) $group = Group::find($group);
 
         GroupUser::where('user_id', $this->id)
-            ->where('group_id', $group->id)
+            ->where('group_id', $group->id())
             ->delete();
     }
 
@@ -138,6 +141,63 @@ class User
     public function allGroups(): Collection
     {
         return GroupUser::where('user_id', $this->id)->get()->load('group');
+    }
+
+
+    /**
+     * Add standard acl group.
+     * 
+     * @param Group|int $group
+     * @param int $level
+     * 
+     * @return void
+     */
+    public function addStdGroup(Group|int $group, int $level): void
+    {
+        if (is_int($group)) $group = Group::find($group);
+
+        if (!in_array($level, Acl::RANGE)) {
+
+            throw new UnknownPermissionLevel(
+                'Unknown permission level ' . $level
+            );
+        }
+
+        StdAcl::updateOrCreate(
+            ['user_id' => $this->id, 'group_id' => $group->id()],
+            ['permission_level' => $level]
+        );
+    }
+
+
+    /**
+     * Remove standard acl group.
+     * 
+     * @param Group|int $group
+     * 
+     * @return void
+     */
+    public function removeStdGroup(Group|int $group): void
+    {
+        if (is_int($group)) $group = Group::find($group);
+
+        StdAcl::where('user_id', $this->id)
+            ->where('group_id', $group->id())
+            ->delete();
+    }
+
+
+    /**
+     * Call when user creates a new record.
+     * 
+     * @param string $acronym
+     * @param int $id
+     * 
+     * @return Record
+     */
+    public function create(string $acronym, int $id): Record
+    {
+        return Record::new($acronym, $id, $this->stdAcl);
     }
 
 
@@ -265,9 +325,14 @@ class User
         ));
         $allPermissions = static::fetchAllGroupsPermissions($allParents);
 
+        $stdAcl = StdAcl::select('group_id', 'permission_level')
+            ->where('user_id', $idUser)
+            ->get()->toArray();
+
         return [
             'groups' => $allChilds,
             'permissions' => $allPermissions,
+            'std_acl' => $stdAcl,
         ];
     }
 
@@ -299,7 +364,7 @@ class User
             $values = static::getUserInfo($idUser);
         }        
 
-        static::$users[$idUser] = new static($idUser, $values['permissions'], $values['groups']);
+        static::$users[$idUser] = new static($idUser, $values['permissions'], $values['groups'], $values['std_acl']);
 
         return static::$users[$idUser];
     }
@@ -321,7 +386,7 @@ class User
         $user->user_id = $id;
         $user->save();
 
-        return new static($id, [], [], $group);
+        return new static($id, [], [], [], $group);
     }
 
 

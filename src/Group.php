@@ -202,6 +202,21 @@ class Group
 
 
     /**
+     * Deletes the group.
+     * 
+     * @param bool $clean
+     * 
+     * @return void
+     */
+    public function destroy(bool $clean): void
+    {
+        if ($clean) static::cleanGroup($this->group->id);
+
+        $this->group->delete();
+    }
+
+
+    /**
      * returns the group instance.
      * 
      * @param int $id
@@ -242,16 +257,26 @@ class Group
             ? GroupModel::find($id)
             : GroupModel::firstWhere('user_id', $id);
 
-        if ($clean) {
-
-            GroupUser::where('group_id', $group->id)->delete();
-            GroupDependency::where('group_id', $group->id)->delete();
-            GroupPermission::where('group_id', $group->id)->delete();
-            ParentGroup::where('child_id', $group->id)
-                ->orWhere('parent_id', $group->id)->delete();
-        }
+        if ($clean) static::cleanGroup($group->id);
 
         $group->delete();
+    }
+
+
+    /**
+     * Cleans related data to group.
+     * 
+     * @param int $id
+     * 
+     * @return void
+     */
+    protected static function cleanGroup(int $id): void
+    {
+        GroupUser::where('group_id', $id)->delete();
+        GroupDependency::where('group_id', $id)->delete();
+        GroupPermission::where('group_id', $id)->delete();
+        ParentGroup::where('child_id', $id)
+            ->orWhere('parent_id', $id)->delete();
     }
 
 

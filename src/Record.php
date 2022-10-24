@@ -7,6 +7,7 @@ namespace Rexpl\LaravelAcl;
 use Illuminate\Database\Eloquent\Collection;
 use Rexpl\LaravelAcl\Models\GroupDependency;
 use Illuminate\Support\Facades\Cache;
+use Rexpl\LaravelAcl\Exceptions\UnknownPermissionLevel;
 
 class Record
 {
@@ -199,5 +200,94 @@ class Record
         }
 
         return $this->record;
+    }
+
+
+    /**
+     * Assign new group to the record.
+     * 
+     * @param Group|int $group
+     * @param int $level
+     * 
+     * @return void
+     */
+    public function assign(Group|int $group, int $level): void
+    {
+        if (is_int($group)) $group = Group::find($group);
+
+        if (!in_array($level, Acl::RANGE)) {
+
+            throw new UnknownPermissionLevel(
+                'Unknown permission level ' . $level
+            );
+        }
+
+        GroupDependency::updateOrCreate(
+            [
+                'ressource' => $this->acronym,
+                'ressource_id' => $this->id,
+                'group_id' => $group->id()
+            ],
+            ['permission_level' => $level]
+        );
+    }
+
+
+    /**
+     * Remove group from record.
+     * 
+     * @param Group|int $group
+     * 
+     * @return void
+     */
+    public function remove(Group|int $group): void
+    {
+        if (is_int($group)) $group = Group::find($group);
+
+        GroupDependency::where('ressource', $this->acronym)
+            ->where('ressource_id', $this->id)
+            ->where('group_id', $group->id())
+            ->delete();
+    }
+
+
+    /**
+     * Make a new record.
+     * 
+     * @param string $acronym
+     * @param int $id
+     * @param array $groups -> [['group_id' => 'id', 'permission_level' => 'level'] ..]
+     * 
+     * @return static
+     */
+    public static function new(string $acronym, int $id, array $groups): static
+    {
+        foreach ($groups as $row) {
+            
+            GroupDependency::create([
+                'ressource' => $acronym,
+                'ressource_id' => $id,
+                'group_id' => $row['group_id'],
+                'permission_level' => $row['permission_level'],
+            ]);
+        }
+
+        return new static($acronym, $id);
+    }
+
+
+    /**
+     * Deletes a record.
+     * 
+     * @param string $acronym
+     * @param int $id
+     * 
+     * @return void
+     */
+    public static function delete(string $acronym, int $id): void
+    {
+        GroupDependency::where('ressource', $acronym)
+            ->where('ressource_id', $id)
+            ->delete();
     }
 }

@@ -5,7 +5,7 @@ namespace Rexpl\LaravelAcl\Models;
 use Illuminate\Database\Eloquent\Model;
 // use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class GroupDependency extends Model
+class StdAcl extends Model
 {
     // use HasFactory;
     
@@ -14,8 +14,8 @@ class GroupDependency extends Model
      *
      * @var string
      */
-    protected $table = 'acl_group_dependencies';
-    
+    protected $table = 'acl_user_std';
+
 
     /**
      * Indicates if the model should be timestamped.
@@ -31,18 +31,8 @@ class GroupDependency extends Model
     * @var array
     */
     protected $fillable = [
-        'ressource',
-        'ressource_id',
+        'user_id',
         'group_id',
         'permission_level',
     ];
-
-
-    /**
-     * Get the related group.
-     */
-    public function group()
-    {
-        return $this->belongsTo(Group::class, 'group_id', 'id');
-    }
 }
