@@ -234,7 +234,7 @@ class Acl
         $permission->name = $name;
         $permission->save();
 
-        if (config('acl.gates', true)) {
+        if (config('acl.gates', false)) {
 
             Gate::define($name, function(UserModel $user) use ($name) {
                 return User::find($user->id)->canWithPermission($name);

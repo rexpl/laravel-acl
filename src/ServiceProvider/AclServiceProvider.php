@@ -62,8 +62,10 @@ class AclServiceProvider extends ServiceProvider
                 __DIR__.'/../../config/acl.php' => config_path('acl.php'),
             ], 'config');
         }
+        else {
 
-        if (config('acl.gates', true)) Acl::buildGates();
+           if (config('acl.gates', false)) Acl::buildGates(); 
+        }
     
         $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
     }

@@ -10,7 +10,7 @@ return [
     /**
      * Automatically make gates for each permission.
      */
-    'gates' => true,
+    'gates' => false,
 
     /**
      * Cache user's acl. (highly recommended)
