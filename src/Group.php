@@ -90,7 +90,7 @@ class Group
      * 
      * @return Permission
      */
-    protected function fetchPermission($permission): Permission
+    protected function fetchPermission(Permission|string|int $permission): Permission
     {
         if (is_string($permission)) {
 
