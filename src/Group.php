@@ -92,13 +92,13 @@ class Group
      */
     protected function fetchPermission(Permission|string|int $permission): Permission
     {
-        if (is_string($permission)) {
-
-            return Permission::firstWhere('name', $permission);
-        }
-        elseif (is_int($permission)) {
+        if (is_numeric($permission)) {
 
             return Permission::find($permission);
+        }
+        elseif (is_string($permission)) {
+
+            return Permission::firstWhere('name', $permission);
         }
 
         return $permission;
