@@ -225,7 +225,7 @@ class Group
      */
     public static function find(int $id): static
     {
-        return new static(GroupModel::find('id', $id));
+        return new static(GroupModel::find($id));
     }
 
 
