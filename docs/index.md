@@ -5,5 +5,12 @@ This package provide acl for laravel, before starting consider reading [the main
 ## Table of content
 
 - [Configuration](/docs/configuration.md)
+- [Classes](/docs/classes/index.md)
+    - [Rexpl\LaravelAcl\Acl](/docs/classes/acl.md)
+    - [Rexpl\LaravelAcl\Group](/docs/classes/group.md)
+    - [Rexpl\LaravelAcl\Policy](/docs/classes/policy.md)
+    - [Rexpl\LaravelAcl\Record](/docs/classes/record.md)
+    - [Rexpl\LaravelAcl\User](/docs/classes/user.md)
+- [Artisan commands](/docs/commands.md)
 
 ... Work in progress

@@ -70,7 +70,7 @@ if (Gate::denies('user:read')) {
 > **Note:** the exemple above assumes that the permission **user:read** has been created beforehand. Gates will only be defined for previously created permissions.
 
 > ### :information_source: Per record authorization
-> To authorize on a per record base, please see the documentation for [policies](/docs/policy.md).
+> To authorize on a per record base, please see the documentation for [policies](/docs/classes/policy.md).
 
 <br/>
 
