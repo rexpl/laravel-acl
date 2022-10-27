@@ -186,7 +186,7 @@ public static function deleteGroup(int $id, bool $clean = true): void
 ### Parameters 
 
 - **id:** The group ID.
-- **clean:** Whether or not to clean all related data to this user (recommended).
+- **clean:** Whether or not to clean all related data to this group (recommended).
 
 ### Return values
 
