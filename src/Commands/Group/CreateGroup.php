@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl\Commands\Group;
 
 use Illuminate\Console\Command;
-use Rexpl\LaravelAcl\Models\Group;
+use Rexpl\LaravelAcl\Group;
 
 class CreateGroup extends Command
 {
@@ -14,7 +14,7 @@ class CreateGroup extends Command
      *
      * @var string
      */
-    protected $signature = 'group:add {name? : Name for the new group} {--u|user= : Create a user group}';
+    protected $signature = 'group:add {name? : Name for the new group}';
 
  
     /**
@@ -32,64 +32,10 @@ class CreateGroup extends Command
      */
     public function handle(): void
     {
-        if (false !== $this->option('user')) {
+        $group = Group::new(
+            $this->argument('name') ?? $this->ask('Enter new group name')
+        );
 
-            $this->createUserGroup();
-            return;
-        }
-
-        $this->createGroup();
-    }
-
-
-    /**
-     * Creates a regular group.
-     * 
-     * @return void
-     */
-    protected function createGroup(): void
-    {
-        if (!$name = $this->argument('name')) {
-
-            $name = $this->ask('Enter new group name');
-        }
-
-        if (null !== Group::firstWhere('name', $name)) {
-
-            $this->error('Group ' . $name . ' already exists.');
-            return;
-        }
-
-        $group = new Group();
-        $group->name = $name;
-        $group->save();
-
-        $this->info('Successfuly created group ' . $name . ' (id: ' . $group->id . ').');
-    }
-
-
-    /**
-     * Creates a user group.
-     * 
-     * @return void
-     */
-    protected function createUserGroup(): void
-    {
-        if (!$name = $this->option('user')) {
-
-            $name = $this->ask('Enter user id');
-        }
-
-        if (null !== Group::firstWhere('user_id', $name)) {
-
-            $this->error('User group ' . $name . ' already exists.');
-            return;
-        }
-
-        $group = new Group();
-        $group->user_id = $name;
-        $group->save();
-
-        $this->info('Successfuly created group user:' . $name . ' (id: ' . $group->id . ').');
+        $this->info('Successfuly created group (id: ' . $group->id() . ').');
     }
 }
