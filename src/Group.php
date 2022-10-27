@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl;
 
 use Illuminate\Database\Eloquent\Collection;
-use Rexpl\LaravelAcl\Models\Group as GroupModel;
-use Rexpl\LaravelAcl\Models\ParentGroup;
-use Rexpl\LaravelAcl\Models\GroupPermission;
-use Rexpl\LaravelAcl\Models\Permission;
-use Rexpl\LaravelAcl\Models\GroupDependency;
-use Rexpl\LaravelAcl\Models\GroupUser;
+use Rexpl\LaravelAcl\Exceptions\ResourceNotFoundException;
+use Rexpl\LaravelAcl\Models\{
+    Group as GroupModel,
+    ParentGroup,
+    GroupPermission,
+    Permission,
+    GroupDependency,
+    GroupUser
+};
 
 class Group
 {
@@ -92,14 +95,20 @@ class Group
      */
     protected function fetchPermission(Permission|string|int $permission): Permission
     {
-        if (is_numeric($permission)) {
+        if (is_string($permission)) {
 
-            return Permission::find($permission);
-        }
-        elseif (is_string($permission)) {
+            $result = is_numeric($permission)
+                ? Permission::find($permission)
+                : Permission::firstWhere('name', $permission);
 
-            return Permission::firstWhere('name', $permission);
-        }
+            if (null === $result) {        
+                throw new ResourceNotFoundException(
+                    'Permission ' . $permission . ', not found.'
+                );
+            }
+
+            $permission = $result;
+        }        
 
         return $permission;
     }
@@ -208,7 +217,7 @@ class Group
      * 
      * @return void
      */
-    public function destroy(bool $clean): void
+    public function destroy(bool $clean = true): void
     {
         if ($clean) static::cleanGroup($this->group->id);
 
@@ -225,7 +234,28 @@ class Group
      */
     public static function find(int $id): static
     {
-        return new static(GroupModel::find($id));
+        return new static(static::getGroupByID($id));
+    }
+
+
+    /**
+     * Get the group model by ID.
+     * 
+     * @param int $id
+     * 
+     * @return GroupModel
+     */
+    protected static function getGroupByID(int $id): GroupModel
+    {
+        $group = GroupModel::find($id);
+
+        if (null === $group) {        
+            throw new ResourceNotFoundException(
+                'Group with id: ' . $id . ', not found.'
+            );
+        }
+
+        return $group;
     }
 
 
@@ -238,7 +268,28 @@ class Group
      */
     public static function findUserGroup(int $id): static
     {
-        return new static(GroupModel::firstWhere('user_id', $id));
+        return new static(static::getGroupByUserID($id));
+    }
+
+
+    /**
+     * Get the group model by user ID.
+     * 
+     * @param int $id
+     * 
+     * @return GroupModel
+     */
+    protected static function getGroupByUserID(int $id): GroupModel
+    {
+        $group = GroupModel::firstWhere('user_id', $id);
+
+        if (null === $group) {        
+            throw new ResourceNotFoundException(
+                'Group with user id: ' . $id . ', not found.'
+            );
+        }
+
+        return $group;
     }
 
 
@@ -254,8 +305,8 @@ class Group
     public static function delete(int $id, bool $clean = true, bool $user = false): void
     {
         $group = $user
-            ? GroupModel::find($id)
-            : GroupModel::firstWhere('user_id', $id);
+            ? static::getGroupByUserID($id)
+            : static::getGroupByID($id);
 
         if ($clean) static::cleanGroup($group->id);
 

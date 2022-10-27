@@ -4,7 +4,7 @@ namespace Rexpl\LaravelAcl\Exceptions;
 
 use Exception;
 
-class UnknownPermissionLevel extends Exception
+class UnknownPermissionException extends Exception
 {
 
 }
