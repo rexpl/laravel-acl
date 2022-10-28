@@ -33,7 +33,7 @@ class DeleteGroup extends Command
     public function handle(): void
     {
         Group::delete(
-            $this->argument('id') ?? $this->ask('Enter group ID'),
+            (int) $this->argument('id') ?? $this->ask('Enter group ID'),
             null === $this->option('clean')
         );
 
