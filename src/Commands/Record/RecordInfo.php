@@ -6,7 +6,6 @@ namespace Rexpl\LaravelAcl\Commands\Record;
 
 use Illuminate\Console\Command;
 use Rexpl\LaravelAcl\Acl;
-use Rexpl\LaravelAcl\Models\GroupDependency;
 
 class RecordInfo extends Command
 {
@@ -33,15 +32,10 @@ class RecordInfo extends Command
      */
     public function handle(): void
     {
-        $record = GroupDependency::where('ressource', $this->argument('acronym'))
-            ->where('ressource_id', $this->argument('id'))
-            ->get();
-
-        if (null === $record) {
-
-            $this->error('Record not found.');
-            return;
-        }
+        $record = Acl::record(
+            $this->argument('acronym'),
+            (int) $this->argument('id')
+        )->record();
 
         $table = [];
 

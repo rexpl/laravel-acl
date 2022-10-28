@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl\Commands\Permission;
 
 use Illuminate\Console\Command;
-use Rexpl\LaravelAcl\Models\GroupPermission;
-use Rexpl\LaravelAcl\Models\Permission;
+use Rexpl\LaravelAcl\Acl;
 
 class DeletePermission extends Command
 {
@@ -15,7 +14,7 @@ class DeletePermission extends Command
      *
      * @var string
      */
-    protected $signature = 'permission:delete {name? : Name of the permission (or ID)} {--c|clean : Clean the database from all related data}';
+    protected $signature = 'permission:delete {id? : Permission ID} {--c|clean : Don\'t clean the database from all related data}';
 
  
     /**
@@ -33,29 +32,11 @@ class DeletePermission extends Command
      */
     public function handle(): void
     {
-        if (!$nameORid = $this->argument('name')) {
+        Acl::deletePermission(
+            $this->argument('id') ?? $this->ask('Enter permission ID'),
+            null === $this->option('clean')
+        );
 
-            $nameORid = $this->ask('Enter permission name or id');
-        }
-
-        $permission = is_numeric($nameORid)
-            ? Permission::find($nameORid)
-            : Permission::firstWhere('name', $nameORid);
-
-        if (null === $permission) {
-
-            $this->error('Permission ' . $nameORid . ' doesn\'t exists.');
-            return;
-        }
-
-        $permission->delete();
-
-        $this->info('Successfuly deleted permission ' . $permission->name . ' (id: ' . $permission->id . ').');
-
-        if (false === $this->option('clean')) return;
-
-        GroupPermission::where('permission_id', $permission->id)->delete();
-
-        $this->info('Successfuly removed all related data to permission.');
+        $this->info('Successfuly deleted group.');
     }
 }

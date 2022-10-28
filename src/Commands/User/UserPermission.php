@@ -32,15 +32,9 @@ class UserPermission extends Command
      */
     public function handle(): void
     {
-        $id = $this->argument('id');
-
-        if (!is_numeric($id)) {
-
-            $this->error('ID must be numeric.');
-            return;
-        }
-
-        $user = User::find((int) $id);
+        $user = User::find(
+            (int) $this->argument('id')
+        );
 
         $permission = [];
 

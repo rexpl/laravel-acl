@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl\Commands\Permission;
 
 use Illuminate\Console\Command;
-use Rexpl\LaravelAcl\Models\Permission;
+use Rexpl\LaravelAcl\Acl;
 
 class CreatePermission extends Command
 {
@@ -32,21 +32,10 @@ class CreatePermission extends Command
      */
     public function handle(): void
     {
-        if (!$name = $this->argument('name')) {
+        $id = Acl::newPermission(
+            $this->argument('name') ?? $this->ask('Enter new permission name')
+        );
 
-            $name = $this->ask('Enter new permission name');
-        }
-
-        if (null !== Permission::firstWhere('name', $name)) {
-
-            $this->error('Permission ' . $name . ' already exists.');
-            return;
-        }
-
-        $permission = new Permission();
-        $permission->name = $name;
-        $permission->save();
-
-        $this->info('Successfuly created permission ' . $name . ' (id: ' . $permission->id . ').');
+        $this->info('Successfuly created permission (id: ' . $id . ').');
     }
 }

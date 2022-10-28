@@ -188,7 +188,7 @@ class Record
      * 
      * @return Collection
      */
-    protected function record(): Collection
+    public function record(): Collection
     {
         if (!$this->isRecordFetched) {
 

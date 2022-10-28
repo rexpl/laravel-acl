@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl\Commands\Permission;
 
 use Illuminate\Console\Command;
-use Rexpl\LaravelAcl\Models\Permission;
+use Rexpl\LaravelAcl\Acl;
 
 class ListPermission extends Command
 {
@@ -14,7 +14,7 @@ class ListPermission extends Command
      *
      * @var string
      */
-    protected $signature = 'permission:list {--g|group : See wich groups uses the permission.}';
+    protected $signature = 'permission:list';
 
  
     /**
@@ -32,38 +32,9 @@ class ListPermission extends Command
      */
     public function handle(): void
     {
-        if (false === $this->option('group')) {
-
-            $this->table(
-                ['ID', 'Name'],
-                Permission::all()->toArray()
-            );
-            return;
-        }
-        
-        $result = [];
-
-        foreach (Permission::all() as $permission) {
-
-            $names = [];
-            
-            foreach ($permission->groups()->get() as $group) {
-                
-                $group = $group->group()->first();
-
-                $names[] = $group->name ?? 'user:' . $group->user_id;
-            }
-
-            $result[] = [
-                'id' => $permission->id,
-                'name' => $permission->name,
-                'groups' => implode(", ", $names),
-            ];
-        }
-
         $this->table(
-            ['ID', 'Name', 'Groups using the permission'],
-            $result
+            ['ID', 'Name'],
+            Acl::permissions()->toArray()
         );
     }
 }

@@ -302,7 +302,7 @@ class Acl
      */
     public static function buildGates(): void
     {
-        foreach (Permission::all() as $permission) {
+        foreach (static::permissions() as $permission) {
             
             Gate::define($permission->name, function(UserModel $user) use ($permission) {
                 return User::find($user->id)->canWithPermission($permission->name);
