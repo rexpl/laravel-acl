@@ -41,3 +41,9 @@ Publish configuration (Optional):
 ```
 php artisan vendor:publish --provider="Rexpl\LaravelAcl\ServiceProvider\AclServiceProvider" --tag="config"
 ```
+
+## To Do List
+
+- [ ] Add unit testing
+- [ ] Document all features + add exemples
+- [ ] Add global/local access controlled queries
