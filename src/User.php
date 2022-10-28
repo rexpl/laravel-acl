@@ -7,7 +7,10 @@ namespace Rexpl\LaravelAcl;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Collection;
-use Rexpl\LaravelAcl\Exceptions\UnknownPermissionLevel;
+use Rexpl\LaravelAcl\Exceptions\{
+    UnknownPermissionException,
+    ResourceNotFoundException
+};
 use Rexpl\LaravelAcl\Models\StdAcl;
 use Rexpl\LaravelAcl\Models\GroupUser;
 
@@ -158,7 +161,7 @@ class User
 
         if (!in_array($level, Acl::RANGE)) {
 
-            throw new UnknownPermissionLevel(
+            throw new UnknownPermissionException(
                 'Unknown permission level ' . $level
             );
         }
@@ -198,6 +201,49 @@ class User
     public function create(string $acronym, int $id): Record
     {
         return Record::new($acronym, $id, $this->stdAcl);
+    }
+
+
+    /**
+     * Collect all user data.
+     * 
+     * @param int $idUser
+     * 
+     * @return array
+     */
+    protected static function getUserInfo(int $idUser): array
+    {
+        $allUserGroups = GroupUser::where('user_id', $idUser)->get();
+
+        if (null === $allUserGroups) {
+
+            throw new ResourceNotFoundException(
+                'User with id: ' . $idUser . ', not found.'
+            );
+        }
+
+        $allUserGroups = array_map(
+            function ($value)
+            {
+                return $value['group_id'];
+            },
+            $allUserGroups->toArray()
+        );
+        $nFactor = (int) config('acl.nFactor', 3);
+
+        $result = $nFactor !== 0
+            ? static::getInheritableData($allUserGroups, $nFactor)
+            : static::getNonInheritableData($allUserGroups);
+
+        $stdAcl = StdAcl::select('group_id', 'permission_level')
+            ->where('user_id', $idUser)
+            ->get()->toArray();
+
+        return [
+            'groups' => $result['groups'],
+            'permissions' => $result['permissions'],
+            'std_acl' => $stdAcl,
+        ];
     }
 
 
@@ -297,23 +343,15 @@ class User
 
 
     /**
-     * Collect all user data.
+     * Retroieve all user inheritance data.
      * 
-     * @param int $idUser
+     * @param array $allUserGroups
+     * @param int $nFactor
      * 
      * @return array
      */
-    protected static function getUserInfo(int $idUser): array
+    protected static function getInheritableData(array $allUserGroups, int $nFactor): array
     {
-        $allUserGroups = array_map(
-            function ($value)
-            {
-                return $value['group_id'];
-            },
-            GroupUser::where('user_id', $idUser)->get()->toArray()
-        );
-        $nFactor = (int) config('acl.nFactor', 3);
-
         $allChilds = array_unique(array_merge(
             $allUserGroups,    
             static::groupChildGroups($allUserGroups, $nFactor)
@@ -325,14 +363,27 @@ class User
         ));
         $allPermissions = static::fetchAllGroupsPermissions($allParents);
 
-        $stdAcl = StdAcl::select('group_id', 'permission_level')
-            ->where('user_id', $idUser)
-            ->get()->toArray();
-
         return [
             'groups' => $allChilds,
             'permissions' => $allPermissions,
-            'std_acl' => $stdAcl,
+        ];
+    }
+
+
+    /**
+     * Retroieve all user data.
+     * 
+     * @param array $allUserGroups
+     * 
+     * @return array
+     */
+    protected static function getnonInheritableData(array $allUserGroups): array
+    {
+        $allPermissions = static::fetchAllGroupsPermissions($allUserGroups);
+
+        return [
+            'groups' => $allUserGroups,
+            'permissions' => $allPermissions,
         ];
     }
 

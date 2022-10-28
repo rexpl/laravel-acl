@@ -7,7 +7,7 @@ namespace Rexpl\LaravelAcl;
 use Illuminate\Database\Eloquent\Collection;
 use Rexpl\LaravelAcl\Models\GroupDependency;
 use Illuminate\Support\Facades\Cache;
-use Rexpl\LaravelAcl\Exceptions\UnknownPermissionLevel;
+use Rexpl\LaravelAcl\Exceptions\UnknownPermissionException;
 
 class Record
 {
@@ -217,7 +217,7 @@ class Record
 
         if (!in_array($level, Acl::RANGE)) {
 
-            throw new UnknownPermissionLevel(
+            throw new UnknownPermissionException(
                 'Unknown permission level ' . $level
             );
         }
