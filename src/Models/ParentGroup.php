@@ -30,7 +30,7 @@ class ParentGroup extends Model
      */
     public function child()
     {
-        return $this->belongsTo(Group::class, 'id', 'child_id');
+        return $this->belongsTo(Group::class, 'child_id', 'id');
     }
 
 
@@ -39,6 +39,6 @@ class ParentGroup extends Model
      */
     public function parent()
     {
-        return $this->belongsTo(Group::class, 'id', 'parent_id');
+        return $this->belongsTo(Group::class, 'parent_id', 'id');
     }
 }
