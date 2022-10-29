@@ -205,6 +205,53 @@ class User
 
 
     /**
+     * Clear the user from the cache.
+     * 
+     * @return void
+     */
+    public function clear(): void
+    {
+        Cache::forget('rexpl_acl_user_' . $this->id);
+        unset(static::$users[$this->id]);
+    }
+
+
+    /**
+     * Refresh the instance, and cache.
+     * 
+     * @return void
+     */
+    public function refresh(): void
+    {
+        $values = static::getUserInfo($this->id);
+
+        static::$users[$this->id] = new static($this->id, $values['permissions'], $values['groups'], $values['std_acl']);
+
+        $this->permissions = $values['permissions'];
+        $this->groups = $values['groups'];
+        $this->stdAcl = $values['std_acl'];
+
+        if (config('acl.cache', true)) {
+
+            Cache::put('rexpl_acl_user_' . $this->id, $values, config('acl.duration', 604800));
+        }
+    }
+
+
+    /**
+     * Delete the user.
+     *
+     * @param bool $clean
+     * 
+     * @return void
+     */
+    public function destroy(bool $clean = true): void
+    {
+        static::delete($this->id, $clean);
+    }
+
+
+    /**
      * Collect all user data.
      * 
      * @param int $idUser
