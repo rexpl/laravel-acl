@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl;
 
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Rexpl\LaravelAcl\Exceptions\ResourceNotFoundException;
 use Rexpl\LaravelAcl\Models\{
     Group as GroupModel,
@@ -45,7 +45,7 @@ class Group
      */
     public function permissions(): Collection
     {
-        return GroupPermission::where('group_id', $this->group->id)->get()->load('permission');
+        return GroupPermission::where('group_id', $this->group->id)->get()->pluck('permission');
     }
 
 
@@ -95,7 +95,7 @@ class Group
      */
     protected function fetchPermission(Permission|string|int $permission): Permission
     {
-        if (is_string($permission)) {
+        if (!$permission instanceof Permission) {
 
             $result = is_numeric($permission)
                 ? Permission::find($permission)
@@ -121,7 +121,7 @@ class Group
      */
     public function parentGroups(): Collection
     {
-        return ParentGroup::where('child_id', $this->group->id)->get()->load('parent');
+        return ParentGroup::where('child_id', $this->group->id)->get()->pluck('parent');
     }
 
 
@@ -139,7 +139,7 @@ class Group
         $record = new ParentGroup();
 
         $record->child_id = $this->group->id;
-        $record->parent_id = $group->id;
+        $record->parent_id = $group->id();
 
         $record->save();
     }
@@ -157,7 +157,7 @@ class Group
         if (is_int($group)) $group = static::find($group);
 
         ParentGroup::where('child_id', $this->group->id)
-            ->where('parent_id', $group->id)
+            ->where('parent_id', $group->id())
             ->delete();
     }
 
@@ -169,7 +169,7 @@ class Group
      */
     public function childGroups(): Collection
     {
-        return ParentGroup::where('child_id', $this->group->id)->get()->load('parent');
+        return ParentGroup::where('parent_id', $this->group->id)->get()->pluck('child');
     }
 
 
@@ -186,7 +186,7 @@ class Group
 
         $record = new ParentGroup();
 
-        $record->child_id = $group->id;
+        $record->child_id = $group->id();
         $record->parent_id = $this->group->id;
 
         $record->save();
@@ -204,7 +204,7 @@ class Group
     {
         if (is_int($group)) $group = static::find($group);
 
-        ParentGroup::where('child_id', $group->id)
+        ParentGroup::where('child_id', $group->id())
             ->where('parent_id', $this->group->id)
             ->delete();
     }
