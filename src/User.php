@@ -215,7 +215,7 @@ class User
     {
         $allUserGroups = GroupUser::where('user_id', $idUser)->get();
 
-        if (null === $allUserGroups) {
+        if ($allUserGroups->isEmpty()) {
 
             throw new ResourceNotFoundException(
                 'User with id: ' . $idUser . ', not found.'
@@ -451,6 +451,9 @@ class User
      */
     public static function delete(int $id, bool $clean): void
     {
+        Cache::forget('rexpl_acl_user_' . $id);
+        unset(static::$users[$id]);
+
         Group::delete($id, $clean, true);
     }
 }
