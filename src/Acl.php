@@ -267,7 +267,8 @@ class Acl
      */
     public static function permissionName(int $id): ?string
     {
-        return Permission::find($id)->name;
+        $permission = Permission::find($id);
+        return $permission ? $permission->name : null;
     }
 
 
@@ -280,7 +281,8 @@ class Acl
      */
     public static function permissionID(string $name): ?int
     {
-        return Permission::firstWhere('name', $name)->id;
+        $permission = Permission::firstWhere('name', $name);
+        return $permission ? $permission->id : null;
     }
 
 
