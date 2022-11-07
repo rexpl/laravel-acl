@@ -78,11 +78,7 @@ final class Group extends BaseGroup
      */
     public static function delete(int $id, bool $clean = true): void
     {
-        if (isset(static::$groups[$id])) {
-        
-            echo "!";
-            unset(static::$groups[$id]);
-        }
+        if (isset(static::$groups[$id])) unset(static::$groups[$id]);
 
         $group = static::getGroupByID($id);
 
