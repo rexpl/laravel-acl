@@ -9,7 +9,7 @@ use Rexpl\LaravelAcl\Models\GroupDependency;
 use Illuminate\Support\Facades\Cache;
 use Rexpl\LaravelAcl\Exceptions\UnknownPermissionException;
 
-class Record
+final class Record
 {
     /**
      * Should use cache.
@@ -67,22 +67,7 @@ class Record
      */
     public function canReadRecord(User $user): bool
     {
-        if ($this->cache) {
-
-            $result = Cache::remember(
-                'rexpl_acl_user_' . $user->id . '_r_' . $this->acronym . '_' . $this->id,
-                $this->time,
-                function () use ($user): bool
-                {
-                    return $this->loopGroups($user->groups(), Acl::READ);
-                }
-            );
-        } else {
-
-            $result = $this->loopGroups($user->groups(), Acl::READ);
-        }
-            
-        return $result;
+        return $this->canDoWithRecord($user, 'r', Acl::READ);
     }
 
 
@@ -95,22 +80,7 @@ class Record
      */
     public function canWriteRecord(User $user): bool
     {
-        if ($this->cache) {
-
-            $result = Cache::remember(
-                'rexpl_acl_user_' . $user->id . '_w_' . $this->acronym . '_' . $this->id,
-                $this->time,
-                function () use ($user): bool
-                {
-                    return $this->loopGroups($user->groups(), Acl::WRITE);
-                }
-            );
-        } else {
-
-            $result = $this->loopGroups($user->groups(), Acl::WRITE);
-        }
-            
-        return $result;
+        return $this->canDoWithRecord($user, 'w', Acl::WRITE);
     }
 
 
@@ -123,19 +93,34 @@ class Record
      */
     public function canDeleteRecord(User $user): bool
     {
+        return $this->canDoWithRecord($user, 'd', Acl::DELETE);
+    }
+
+
+    /**
+     * Can do with record.
+     * 
+     * @param User $user
+     * @param string $cacheIndex
+     * @param array $neededLevel
+     * 
+     * @return bool
+     */
+    protected function canDoWithRecord(User $user, string $cacheIndex, array $neededLevel): bool
+    {
         if ($this->cache) {
 
             $result = Cache::remember(
-                'rexpl_acl_user_' . $user->id . '_d_' . $this->acronym . '_' . $this->id,
+                'rexpl_acl_user_'.$user->id().'_'.$cacheIndex.'_'.$this->acronym.'_'.$this->id,
                 $this->time,
-                function () use ($user): bool
+                function () use ($user, $neededLevel): bool
                 {
-                    return $this->loopGroups($user->groups(), Acl::DELETE);
+                    return $this->loopGroups($user->groups(), $neededLevel);
                 }
             );
         } else {
 
-            $result = $this->loopGroups($user->groups(), Acl::DELETE);
+            $result = $this->loopGroups($user->groups(), $neededLevel);
         }
             
         return $result;
@@ -174,7 +159,7 @@ class Record
         foreach ($this->record() as $row) {
             
             if (
-                $row->group_id !== $group
+                $row->group_id === $group
                 && in_array($row->permission_level, $neededLevel)
             ) return true;
         }
@@ -193,7 +178,7 @@ class Record
         if (!$this->isRecordFetched) {
 
             $this->record = GroupDependency::where('ressource', $this->acronym)
-                ->where('ressourse_id', $this->id)
+                ->where('ressource_id', $this->id)
                 ->get();
             
             $this->isRecordFetched = true;
@@ -248,6 +233,17 @@ class Record
             ->where('ressource_id', $this->id)
             ->where('group_id', $group->id())
             ->delete();
+    }
+
+
+    /**
+     * Refresh the record information.
+     * 
+     * @return void
+     */
+    public function refresh()
+    {
+        $this->isRecordFetched = false;
     }
 
 
