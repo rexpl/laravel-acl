@@ -11,10 +11,14 @@ use Rexpl\LaravelAcl\Exceptions\{
     UnknownPermissionException,
     ResourceNotFoundException
 };
-use Rexpl\LaravelAcl\Models\StdAcl;
-use Rexpl\LaravelAcl\Models\GroupUser;
+use Rexpl\LaravelAcl\Models\{
+    StdAcl,
+    GroupUser,
+    Group as GroupModel
+};
+use TypeError;
 
-class User
+final class User extends BaseGroup
 {
     /**
      * Saves the already set instances.
@@ -36,8 +40,32 @@ class User
         protected array $permissions = [],
         protected array $groups = [],
         protected array $stdAcl = [],
-        protected ?Group $userGroup = null
-    ) {}
+        ?GroupModel $group = null
+    ) {
+        $this->group = $group;
+    }
+    
+    
+    /**
+    * Returns the group model.
+    * 
+    * @return GroupModel
+    */
+    protected function fetchGroupModel(): GroupModel
+    {
+        return static::getGroupByUserID($this->id);
+    }
+
+
+    /**
+     * Return the user id.
+     * 
+     * @return int
+     */
+    public function id(): int
+    {
+        return $this->id;
+    }
 
 
     /**
@@ -72,30 +100,6 @@ class User
     public function permissions(): array
     {
         return $this->permissions;
-    }
-
-
-    /**
-     * Returns the users personal group.
-     * 
-     * @return Group
-     */
-    public function userGroup(): Group
-    {
-        return $this->userGroup ?? $this->initiateUserGroup();
-    }
-
-
-    /**
-     * Initiates the users personal group.
-     * 
-     * @return Group
-     */
-    protected function initiateUserGroup(): Group
-    {
-        $this->userGroup = Group::findUserGroup($this->id);
-
-        return $this->userGroup;
     }
 
 
@@ -239,7 +243,7 @@ class User
 
 
     /**
-     * Delete the user.
+     * Delete the user. (Overrides parent method)
      *
      * @param bool $clean
      * 
@@ -438,33 +442,33 @@ class User
     /**
      * Returns the user instance from database or from the cache.
      * 
-     * @param int $idUser
+     * @param int $id
      * 
      * @return User
      */
-    public static function find(int $idUser): static
+    public static function find(int $id): static
     {
-        if (isset(static::$users[$idUser])) return static::$users[$idUser];
+        if (isset(static::$users[$id])) return static::$users[$id];
 
         if (config('acl.cache', true)) {
 
             $values = Cache::remember(
-                'rexpl_acl_user_' . $idUser,
+                'rexpl_acl_user_' . $id,
                 config('acl.duration', 604800),
-                function () use ($idUser): array
+                function () use ($id): array
                 {
-                    return static::getUserInfo($idUser);
+                    return static::getUserInfo($id);
                 }
             );
         }
         else {
 
-            $values = static::getUserInfo($idUser);
+            $values = static::getUserInfo($id);
         }        
 
-        static::$users[$idUser] = new static($idUser, $values['permissions'], $values['groups'], $values['std_acl']);
+        static::$users[$id] = new static($id, $values['permissions'], $values['groups'], $values['std_acl']);
 
-        return static::$users[$idUser];
+        return static::$users[$id];
     }
 
 
@@ -475,12 +479,21 @@ class User
      * 
      * @return static
      */
-    public static function new(int $id): static
+    public static function new(string|int $id): static
     {
-        $group = Group::new($id, true);
+        if (is_string($id)) {
+
+            throw new TypeError(
+                'Int expected for argument 1. ' . ucfirst(gettype($id)) . ' given instead.'
+            );
+        }
+
+        $group = new GroupModel();
+        $group->user_id = $id;
+        $group->save();
 
         $user = new GroupUser();
-        $user->group_id = $group->id();
+        $user->group_id = $group->id;
         $user->user_id = $id;
         $user->save();
 
@@ -496,11 +509,13 @@ class User
      * 
      * @return void
      */
-    public static function delete(int $id, bool $clean): void
+    public static function delete(int $id, bool $clean = true): void
     {
         Cache::forget('rexpl_acl_user_' . $id);
         unset(static::$users[$id]);
 
-        Group::delete($id, $clean, true);
+        GroupModel::where('user_id', $id)->delete();
+
+        if ($clean) static::cleanGroup($id);
     }
 }
