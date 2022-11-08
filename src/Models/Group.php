@@ -3,6 +3,8 @@
 namespace Rexpl\LaravelAcl\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 // use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Group extends Model
@@ -27,8 +29,10 @@ class Group extends Model
 
     /**
      * Get all the groups users.
+     * 
+     * @return HasMany
      */
-    public function users()
+    public function users(): HasMany
     {
         return $this->hasMany(GroupUser::class, 'group_id');
     }
@@ -36,26 +40,32 @@ class Group extends Model
 
     /**
      * Get all the groups permissions by id.
+     * 
+     * @return HasMany
      */
-    public function permissions()
+    public function permissions(): HasMany
     {
         return $this->hasMany(GroupPermission::class, 'group_id');
     }
 
 
     /**
-     * get all the groups parent groups.
+     * Get all the groups parent groups.
+     * 
+     * @return HasMany
      */
-    public function parents()
+    public function parents(): HasMany
     {
         return $this->hasMany(ParentGroup::class, 'child_id');
     }
 
 
     /**
-     * get all the groups parent groups.
+     * Get all the groups parent groups.
+     * 
+     * @return HasMany
      */
-    public function childrens()
+    public function childrens(): HasMany
     {
         return $this->hasMany(ParentGroup::class, 'parent_id');
     }

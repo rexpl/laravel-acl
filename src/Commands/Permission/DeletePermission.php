@@ -33,7 +33,7 @@ class DeletePermission extends Command
     public function handle(): void
     {
         Acl::deletePermission(
-            (int) $this->argument('id') ?? $this->ask('Enter permission ID'),
+            intval($this->argument('id') ?? $this->ask('Enter permission ID')),
             null === $this->option('clean')
         );
 

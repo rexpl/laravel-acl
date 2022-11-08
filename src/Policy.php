@@ -11,12 +11,23 @@ use Rexpl\LaravelAcl\User as AclUser;
 abstract class Policy
 {
     /**
-     * @return void
+     * Acronym for resource.
+     * 
+     * @var string
      */
-    public function __construct()
-    {
+    protected $acronym = '';
 
-    }
+
+    /**
+     * Required policies.
+     * 
+     * @var array<string, string>
+     */
+    protected $permissions = [
+        'read' => '',
+        'write' => '',
+        'delete' => '',
+    ];
 
 
     /**

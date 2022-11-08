@@ -7,6 +7,7 @@ namespace Rexpl\LaravelAcl;
 use App\Models\User as UserModel;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Database\Eloquent\Collection;
+use Rexpl\LaravelAcl\Models\GroupPermission;
 use Rexpl\LaravelAcl\Models\Permission;
 
 class Acl
@@ -70,7 +71,7 @@ class Acl
     /**
      * Permission levels wich contain read permission.
      * 
-     * @var array
+     * @var array<int>
      */
     public const READ = [4, 5, 6, 7];
 
@@ -78,7 +79,7 @@ class Acl
     /**
      * Permission levels wich contain write permission.
      * 
-     * @var array
+     * @var array<int>
      */
     public const WRITE = [2, 3, 6, 7];
 
@@ -86,7 +87,7 @@ class Acl
     /**
      * Permission levels wich contain delete permission.
      * 
-     * @var array
+     * @var array<int>
      */
     public const DELETE = [1, 3, 5, 7];
 
@@ -94,7 +95,7 @@ class Acl
     /**
      * All allowed numbers.
      * 
-     * @var array
+     * @var array<int>
      */
     public const RANGE = [1, 2, 3, 4, 5, 6, 7];
 
@@ -135,7 +136,7 @@ class Acl
      */
     public static function deleteUser(int $id, bool $clean = true): void
     {
-        Group::delete($id, $clean, true);
+        User::delete($id, $clean);
     }
 
 
@@ -249,12 +250,17 @@ class Acl
      * Deletes permission.
      * 
      * @param int $id
+     * @param bool $clean
      * 
      * @return void
      */
-    public static function deletePermission(int $id): void
+    public static function deletePermission(int $id, bool $clean = true): void
     {
         Permission::destroy($id);
+
+        if (!$clean) return;
+
+        GroupPermission::where('permission_id', $id)->delete();
     }
 
 

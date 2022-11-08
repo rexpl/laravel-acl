@@ -3,6 +3,8 @@
 namespace Rexpl\LaravelAcl\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 // use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Permission extends Model
@@ -27,8 +29,10 @@ class Permission extends Model
 
     /**
      * Get all the groups permissions by id.
+     * 
+     * @return HasMany
      */
-    public function groups()
+    public function groups(): HasMany
     {
         return $this->hasMany(GroupPermission::class, 'permission_id');
     }

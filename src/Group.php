@@ -12,7 +12,7 @@ final class Group extends BaseGroup
     /**
      * Saves the already set instances.
      * 
-     * @var array
+     * @var array<static>
      */
     protected static $groups = [];
 
@@ -91,8 +91,7 @@ final class Group extends BaseGroup
     /**
      * Creates new group.
      * 
-     * @param string|int $nameORuserId
-     * @param bool $user
+     * @param string|int $name
      * 
      * @return static
      */

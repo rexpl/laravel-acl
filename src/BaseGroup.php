@@ -138,7 +138,7 @@ abstract class BaseGroup
      */
     public function addParentGroup(Group|int $group): void
     {
-        if (is_int($group)) $group = static::getGroupByID($group);
+        if (is_int($group)) $group = Group::find($group);
 
         $record = new ParentGroup();
 
@@ -158,7 +158,7 @@ abstract class BaseGroup
      */
     public function removeParentGroup(Group|int $group): void
     {
-        if (is_int($group)) $group = static::getGroupByID($group);
+        if (is_int($group)) $group = Group::find($group);
 
         ParentGroup::where('child_id', $this->group()->id)
             ->where('parent_id', $group->id())
@@ -186,7 +186,7 @@ abstract class BaseGroup
      */
     public function addChildGroups(Group|int $group): void
     {
-        if (is_int($group)) $group = static::getGroupByID($group);
+        if (is_int($group)) $group = Group::find($group);
 
         $record = new ParentGroup();
 
@@ -206,7 +206,7 @@ abstract class BaseGroup
      */
     public function removeChildGroups(Group|int $group): void
     {
-        if (is_int($group)) $group = static::getGroupByID($group);
+        if (is_int($group)) $group = Group::find($group);
 
         ParentGroup::where('child_id', $group->id())
             ->where('parent_id', $this->group()->id)

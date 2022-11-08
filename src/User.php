@@ -23,15 +23,17 @@ final class User extends BaseGroup
     /**
      * Saves the already set instances.
      * 
-     * @var array
+     * @var array<static>
      */
     protected static $users = [];
 
 
     /**
      * @param int $id
-     * @param array $permissions
-     * @param array $groups
+     * @param array<string> $permissions
+     * @param array<int> $groups
+     * @param array<array{group_id:int,permission_level:int}> $stdAcl
+     * @param GroupModel|null $group
      * 
      * @return void
      */
@@ -84,7 +86,7 @@ final class User extends BaseGroup
     /**
      * Returns all child groups (ids).
      * 
-     * @return array
+     * @return array<int>
      */
     public function groups(): array
     {
@@ -95,7 +97,7 @@ final class User extends BaseGroup
     /**
      * Returns all the permissions the user can use.
      * 
-     * @return array
+     * @return array<string>
      */
     public function permissions(): array
     {
@@ -301,10 +303,10 @@ final class User extends BaseGroup
     /**
      * Returns all the parent groups of the user.
      * 
-     * @param array $groups
+     * @param array<int> $groups
      * @param int $nFactor
      * 
-     * @return array
+     * @return array<int>
      */
     protected static function groupParentGroups(array $groups, int $nFactor): array
     {
@@ -336,10 +338,10 @@ final class User extends BaseGroup
     /**
      * Return all the child groups of the user.
      * 
-     * @param array $groups
+     * @param array<int> $groups
      * @param int $nFactor
      * 
-     * @return array
+     * @return array<int>
      */
     protected static function groupChildGroups(array $groups, int $nFactor): array
     {
@@ -371,9 +373,9 @@ final class User extends BaseGroup
     /**
      * Fetches all the permission of the groups.
      * 
-     * @param array $group
+     * @param array<int> $groups
      * 
-     * @return array
+     * @return array<string>
      */
     protected static function fetchAllGroupsPermissions(array $groups): array
     {
@@ -396,7 +398,7 @@ final class User extends BaseGroup
     /**
      * Retroieve all user inheritance data.
      * 
-     * @param array $allUserGroups
+     * @param array<int> $allUserGroups
      * @param int $nFactor
      * 
      * @return array
@@ -424,7 +426,7 @@ final class User extends BaseGroup
     /**
      * Retroieve all user data.
      * 
-     * @param array $allUserGroups
+     * @param array<int> $allUserGroups
      * 
      * @return array
      */

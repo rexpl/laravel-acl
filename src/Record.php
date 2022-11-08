@@ -102,7 +102,7 @@ final class Record
      * 
      * @param User $user
      * @param string $cacheIndex
-     * @param array $neededLevel
+     * @param array<int> $neededLevel
      * 
      * @return bool
      */
@@ -130,8 +130,8 @@ final class Record
     /**
      * Loops through each user group to see if it matches.
      * 
-     * @param array $groups
-     * @param array $neededLevel
+     * @param array<int> $groups
+     * @param array<int> $neededLevel
      * 
      * @return bool
      */
@@ -150,7 +150,7 @@ final class Record
      * See if there is match between the group array and the record array.
      * 
      * @param int $group
-     * @param array $neededLevel
+     * @param array<int> $neededLevel
      * 
      * @return bool
      */
@@ -252,7 +252,7 @@ final class Record
      * 
      * @param string $acronym
      * @param int $id
-     * @param array $groups -> [['group_id' => 'id', 'permission_level' => 'level'] ..]
+     * @param array<array{group_id:int,permission_level:int}> $groups
      * 
      * @return static
      */

@@ -3,6 +3,8 @@
 namespace Rexpl\LaravelAcl\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 // use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class GroupDependency extends Model
@@ -28,7 +30,7 @@ class GroupDependency extends Model
     /**
     * The attributes that are mass assignable.
     *
-    * @var array
+    * @var array<string>
     */
     protected $fillable = [
         'ressource',
@@ -40,8 +42,10 @@ class GroupDependency extends Model
 
     /**
      * Get the related group.
+     * 
+     * @return BelongsTo
      */
-    public function group()
+    public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class, 'group_id', 'id');
     }

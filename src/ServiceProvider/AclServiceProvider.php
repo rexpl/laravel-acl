@@ -22,7 +22,7 @@ class AclServiceProvider extends ServiceProvider
             User::class,
             function ()
             {
-                return User::find(Auth::id());
+                return User::find((int) Auth::id());
             }
         );
 

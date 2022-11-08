@@ -3,6 +3,8 @@
 namespace Rexpl\LaravelAcl\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 // use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ParentGroup extends Model
@@ -27,8 +29,10 @@ class ParentGroup extends Model
 
     /**
      * Get the related group.
+     * 
+     * @return BelongsTo
      */
-    public function child()
+    public function child(): BelongsTo
     {
         return $this->belongsTo(Group::class, 'child_id', 'id');
     }
@@ -36,8 +40,10 @@ class ParentGroup extends Model
 
     /**
      * Get the related group.
+     * 
+     * @return BelongsTo
      */
-    public function parent()
+    public function parent(): BelongsTo
     {
         return $this->belongsTo(Group::class, 'parent_id', 'id');
     }

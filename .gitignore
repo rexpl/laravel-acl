@@ -1,3 +1,7 @@
 /.vscode
 /vendor
+/report
+*.phpunit*
 composer.lock
+phpstan.neon
+phpunit.xml
