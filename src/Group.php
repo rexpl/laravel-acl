@@ -104,4 +104,15 @@ final class Group extends BaseGroup
         static::$groups[$group->id] = new static($group);
         return static::$groups[$group->id];
     }
+
+
+    /**
+     * Flush the saved instances for long running proccesses.
+     * 
+     * @return void
+     */
+    public static function flush(): void
+    {
+        static::$groups = [];
+    }
 }

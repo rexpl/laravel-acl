@@ -71,6 +71,17 @@ final class User extends BaseGroup
 
 
     /**
+     * Returns the user group ID.
+     * 
+     * @return int
+     */
+    public function groupID(): int
+    {
+        return $this->group()->id;
+    }
+
+
+    /**
      * See if the user has the permission.
      * 
      * @param string $name
@@ -519,5 +530,16 @@ final class User extends BaseGroup
         GroupModel::where('user_id', $id)->delete();
 
         if ($clean) static::cleanGroup($id);
+    }
+
+
+    /**
+     * Flush the saved instances for long running proccesses.
+     * 
+     * @return void
+     */
+    public static function flush(): void
+    {
+        static::$users = [];
     }
 }
