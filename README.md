@@ -45,6 +45,6 @@ php artisan vendor:publish --provider="Rexpl\LaravelAcl\ServiceProvider\AclServi
 ## To Do List
 
 - [ ] Find a way to optionnaly integrate permissions and groups in version control
-- [ ] Add unit testing
 - [ ] Document all features + add exemples
 - [ ] Add global/local access controlled queries
+- [X] ~~Add unit testing~~
