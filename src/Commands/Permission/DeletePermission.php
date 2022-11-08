@@ -37,6 +37,6 @@ class DeletePermission extends Command
             null === $this->option('clean')
         );
 
-        $this->info('Successfuly deleted group.');
+        $this->info('Successfuly deleted permission.');
     }
 }
