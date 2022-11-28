@@ -3,14 +3,10 @@
 namespace Rexpl\LaravelAcl\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-
-// use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Permission extends Model
 {
-    // use HasFactory;
-    
     /**
      * The table associated with the model.
      *
@@ -30,10 +26,10 @@ class Permission extends Model
     /**
      * Get all the groups permissions by id.
      * 
-     * @return HasMany
+     * @return BelongsToMany
      */
-    public function groups(): HasMany
+    public function groups(): BelongsToMany
     {
-        return $this->hasMany(GroupPermission::class, 'permission_id');
+        return $this->belongsToMany(Group::class, 'acl_group_permissions', 'permission_id', 'group_id');
     }
 }

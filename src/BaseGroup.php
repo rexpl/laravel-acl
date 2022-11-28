@@ -49,7 +49,7 @@ abstract class BaseGroup
      */
     public function groupPermissions(): Collection
     {
-        return GroupPermission::where('group_id', $this->group()->id)->get()->pluck('permission');
+        return $this->group()->permissions()->get();
     }
 
 
@@ -125,7 +125,7 @@ abstract class BaseGroup
      */
     public function parentGroups(): Collection
     {
-        return ParentGroup::where('child_id', $this->group()->id)->get()->pluck('parent');
+        return $this->group()->parents()->get();
     }
 
 
@@ -173,7 +173,7 @@ abstract class BaseGroup
      */
     public function childGroups(): Collection
     {
-        return ParentGroup::where('parent_id', $this->group()->id)->get()->pluck('child');
+        return $this->group()->childrens()->get();
     }
 
 

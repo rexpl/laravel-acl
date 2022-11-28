@@ -4,13 +4,10 @@ namespace Rexpl\LaravelAcl\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
-// use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Group extends Model
 {
-    // use HasFactory;
-
     /**
      * The table associated with the model.
      *
@@ -41,32 +38,32 @@ class Group extends Model
     /**
      * Get all the groups permissions by id.
      * 
-     * @return HasMany
+     * @return BelongsToMany
      */
-    public function permissions(): HasMany
+    public function permissions(): BelongsToMany
     {
-        return $this->hasMany(GroupPermission::class, 'group_id');
+        return $this->belongsToMany(Permission::class, 'acl_group_permissions', 'group_id', 'permission_id');
     }
 
 
     /**
      * Get all the groups parent groups.
      * 
-     * @return HasMany
+     * @return BelongsToMany
      */
-    public function parents(): HasMany
+    public function parents(): BelongsToMany
     {
-        return $this->hasMany(ParentGroup::class, 'child_id');
+        return $this->belongsToMany(self::class, 'acl_parent_groups', 'child_id', 'parent_id');
     }
 
 
     /**
      * Get all the groups parent groups.
      * 
-     * @return HasMany
+     * @return BelongsToMany
      */
-    public function childrens(): HasMany
+    public function childrens(): BelongsToMany
     {
-        return $this->hasMany(ParentGroup::class, 'parent_id');
+        return $this->belongsToMany(self::class, 'acl_parent_groups', 'parent_id', 'child_id');
     }
 }

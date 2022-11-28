@@ -3,14 +3,9 @@
 namespace Rexpl\LaravelAcl\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
-// use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class GroupDependency extends Model
 {
-    // use HasFactory;
-    
     /**
      * The table associated with the model.
      *
@@ -38,15 +33,4 @@ class GroupDependency extends Model
         'group_id',
         'permission_level',
     ];
-
-
-    /**
-     * Get the related group.
-     * 
-     * @return BelongsTo
-     */
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class, 'group_id', 'id');
-    }
 }
