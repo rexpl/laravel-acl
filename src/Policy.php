@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User;
 use Rexpl\LaravelAcl\User as AclUser;
 
 abstract class Policy
