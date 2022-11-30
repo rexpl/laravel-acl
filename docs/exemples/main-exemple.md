@@ -24,19 +24,19 @@ Access determine if a user can read, write or delete a specific ressource, acces
 ![exemple-readme-user-1-usr-1](/docs/img/zoom/exemple-readme-user-1-usr-1-zoom.jpg)
 
 - **Read and Write**
-    - Permission: The user belongs to *Group 1 users* wich inherits *Permission 3* and *Permission 4* from the *Users* group, giving read and write access to the USR model.
-    - Access: The user belongs to *Group 1 users* wich has read and write access to this record.
+    - Permission: The user belongs to *Group 1 users* wich inherits **Permission 3** and **Permission 4** from the **Users** group, giving read and write access to the USR model.
+    - Access: The user belongs to **Group 1 users** wich has read and write access to this record.
 - **Delete**
-    - Permission: The user belongs to *Group 1 users* wich does not have *Permission 5*, not giving delete access to the USR model. *Group 1 users* does not inherit *Permission 5* from his parent group(s).
-    - Access: The user belongs to *Group 1 users* wich doesn't have delete access to this record and the group doesn't inherit it from a child group.
+    - Permission: The user belongs to **Group 1 users** wich does not have **Permission 5**, not giving delete access to the USR model. **Group 1 users** does not inherit **Permission 5** from his parent group(s).
+    - Access: The user belongs to **Group 1 users** wich doesn't have delete access to this record and the group doesn't inherit it from a child group.
 
 ### User 2 cannot access this record
 
 ![exemple-readme-user-1-usr-1](/docs/img/zoom/exemple-readme-user-2-usr-1-zoom.jpg)
 
 - **Read, Write and Delete**
-    - Permission: The user belongs to *Group 4 users* wich inherits *Permission 3* and *Permission 4* from the *Users* group, giving read and write access to the USR model.
-    - Access: The user belongs to *Group 4 users* wich doesn't have any access on the record therefore disallowing read, write and delete.
+    - Permission: The user belongs to **Group 4 users** wich inherits **Permission 3** and **Permission 4** from the **Users** group, giving read and write access to the USR model.
+    - Access: The user belongs to **Group 4 users** wich doesn't have any access on the record therefore disallowing read, write and delete.
 
 
 ### User 3, 4 and 5 cannot access this record
@@ -44,7 +44,7 @@ Access determine if a user can read, write or delete a specific ressource, acces
 ![exemple-readme-user-1-usr-1](/docs/img/zoom/exemple-readme-user-3-4-5-usr-1-zoom.jpg)
 
 - **Read, Write and Delete**
-    - Permission: All those users belong to groups wich inherit read and write permissions from the *Users* group.
+    - Permission: All those users belong to groups wich inherit read and write permissions from the **Users** group.
     - Access: All those users belong to groups wich doesn't have any access on the record therefore disallowing read, write and delete.
 
 ### User 6 can read, write and delete this record
@@ -52,13 +52,13 @@ Access determine if a user can read, write or delete a specific ressource, acces
 ![exemple-readme-user-1-usr-1](/docs/img/zoom/exemple-readme-user-6-usr-1-zoom.jpg)
 
 - **Read and Write**
-    - Permission: The user belongs to *Users* wich has *Permission 3* and *Permission 4*, giving read and write access to the USR model.
-    - Access: The user belongs to *Users* group wich has read, write and delete access on this record.
+    - Permission: The user belongs to **Users** wich has **Permission 3** and **Permission 4**, giving read and write access to the USR model.
+    - Access: The user belongs to **Users** group wich has read, write and delete access on this record.
 - **Delete**
-    - Permission: The user belongs to *Admin* wich has *Permission 5*, giving delete access to the USR model.
-    - Access: The user belongs to *Users* group wich has delete access on this record.
+    - Permission: The user belongs to **Admin** wich has **Permission 5**, giving delete access to the USR model.
+    - Access: The user belongs to **Users** group wich has delete access on this record.
 
-> **Note:** The *Users* group is parent of the *Group 1 users* wich has read and write access. Meaning that the user would still have read and write access even if the *Users* group didn't have access to the record.
+> **Note:** The **Users** group is parent of the **Group 1 users** wich has read and write access. Meaning that the user would still have read and write access even if the **Users** group didn't have access to the record.
 
 ### User 7 cannot acces this record
 
