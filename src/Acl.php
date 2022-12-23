@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl;
 
-use App\Models\User as UserModel;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Database\Eloquent\Collection;
 use Rexpl\LaravelAcl\Models\GroupPermission;
@@ -237,7 +237,7 @@ class Acl
 
         if (config('acl.gates', false)) {
 
-            Gate::define($name, function(UserModel $user) use ($name) {
+            Gate::define($name, function(Authenticatable $user) use ($name) {
                 return User::find($user->id)->canWithPermission($name);
             });
         }
@@ -312,7 +312,7 @@ class Acl
     {
         foreach (static::permissions() as $permission) {
             
-            Gate::define($permission->name, function(UserModel $user) use ($permission) {
+            Gate::define($permission->name, function(Authenticatable $user) use ($permission) {
                 return User::find($user->id)->canWithPermission($permission->name);
             });
         }
