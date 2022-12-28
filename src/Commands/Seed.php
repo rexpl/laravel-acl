@@ -80,7 +80,7 @@ class Seed extends GeneratorCommand
         foreach (Permission::all() as $permission) {
             
             $result .= sprintf(
-                'Acl::newPermission(%s);', $permission->name
+                'Acl::newPermission(\'%s\');', $permission->name
             );
         }
 
@@ -103,13 +103,13 @@ class Seed extends GeneratorCommand
             if (null !== $group->user_id) {
 
                 $result .= sprintf(
-                    'Acl::newUser(%s);', $group->user_id
+                    'Acl::newUser(\'%s\');', $group->user_id
                 );
                 continue;
             }
             
             $result .= sprintf(
-                'Acl::newGroup(%s);', $group->name
+                'Acl::newGroup(\'%s\');', $group->name
             );
         }
 
