@@ -44,7 +44,7 @@ class Seed extends GeneratorCommand
      */
     protected function getPath($name)
     {
-        return $this->laravel['path'].'/database/seeders/'.$name.'.php';
+        return $this->laravel['path'].'/database/seeders/'.substr($name, 4).'.php';
     }
 
 
