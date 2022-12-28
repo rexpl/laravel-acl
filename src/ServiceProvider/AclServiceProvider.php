@@ -43,6 +43,8 @@ class AclServiceProvider extends ServiceProvider
 
             $this->commands([
 
+                \Rexpl\LaravelAcl\Commands\Export::class,
+
                 \Rexpl\LaravelAcl\Commands\Permission\CreatePermission::class,
                 \Rexpl\LaravelAcl\Commands\Permission\DeletePermission::class,
                 \Rexpl\LaravelAcl\Commands\Permission\ListPermission::class,

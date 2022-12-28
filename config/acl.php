@@ -46,4 +46,20 @@ return [
      */
     'record_duration' => 300, // 5 minutes
 
+
+    /**
+     * What should be exported when issuing the export command.
+     * 
+     * @var array
+     */
+    'export' => [
+
+        /**
+         * Permissions
+         * 
+         * @var bool
+         */
+        'users' => true,
+    ],
+
 ];
