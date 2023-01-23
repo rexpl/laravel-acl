@@ -53,8 +53,8 @@ class AclUnitTest extends TestBase
         // We add child/parent groups
         $group1->addParentGroup($group2);
         $group2->addParentGroup($group3->id()); // We try different options to test as much as possible
-        $group4->addChildGroups($group3);
-        $group5->addChildGroups($group4->id());
+        $group4->addChildGroup($group3);
+        $group5->addChildGroup($group4->id());
 
         // We add users to the groups
         $user1->addGroup($group1->id());

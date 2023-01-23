@@ -178,13 +178,13 @@ abstract class BaseGroup
 
 
     /**
-     * Add parent group.
+     * Add a child group.
      * 
      * @param Group|int $group
      * 
-     * @return void
+     * @return static
      */
-    public function addChildGroups(Group|int $group): void
+    public function addChildGroup(Group|int $group): static
     {
         if (is_int($group)) $group = Group::find($group);
 
@@ -194,6 +194,42 @@ abstract class BaseGroup
         $record->parent_id = $this->group()->id;
 
         $record->save();
+
+        return $this;
+    }
+
+
+    /**
+     * Add parent group.
+     * 
+     * @param Group|int $group
+     * 
+     * @return void
+     * 
+     * @deprecated 1.0 Use addChildGroup instead (without the s)
+     */
+    public function addChildGroups(Group|int $group): void
+    {
+        $this->addChildGroup($group);
+    }
+
+
+    /**
+     * Remove the specified child group.
+     * 
+     * @param Group|int $group
+     * 
+     * @return static
+     */
+    public function removeChildGroup(Group|int $group): static
+    {
+        if (is_int($group)) $group = Group::find($group);
+
+        ParentGroup::where('child_id', $group->id())
+            ->where('parent_id', $this->group()->id)
+            ->delete();
+
+        return $this;
     }
 
 
@@ -203,14 +239,12 @@ abstract class BaseGroup
      * @param Group|int $group
      * 
      * @return void
+     * 
+     * @deprecated 1.0 Use removeChildGroup instead (without the s)
      */
     public function removeChildGroups(Group|int $group): void
     {
-        if (is_int($group)) $group = Group::find($group);
-
-        ParentGroup::where('child_id', $group->id())
-            ->where('parent_id', $this->group()->id)
-            ->delete();
+        $this->removeChildGroup($group);
     }
 
 

@@ -99,14 +99,14 @@ class GroupUnitTest extends TestBase
         $child = Acl::newGroup('Child');
         $group = Acl::newGroup('Users');
 
-        $group->addChildGroups($child);
+        $group->addChildGroup($child);
 
         $this->assertSame(
             true,
             $group->childGroups()->contains(GroupModel::find($child->id()))
         );
 
-        $group->removeChildGroups($child);
+        $group->removeChildGroup($child);
 
         $group->destroy();
         $child->destroy();
