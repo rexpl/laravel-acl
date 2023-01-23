@@ -25,10 +25,6 @@ class AclServiceProvider extends ServiceProvider
                 return User::find((int) Auth::id());
             }
         );
-
-        $this->mergeConfigFrom(
-            __DIR__.'/../../config/acl.php', 'acl'
-        );
     }
 
 
@@ -39,6 +35,10 @@ class AclServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->mergeConfigFrom(
+            __DIR__.'/../../config/acl.php', 'acl'
+        );
+
         if ($this->app->runningInConsole()) {
 
             $this->commands([
