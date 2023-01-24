@@ -24,6 +24,16 @@ class Permission extends Model
 
 
     /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = [
+        'id'
+    ];
+
+
+    /**
      * Get all the groups permissions by id.
      * 
      * @return BelongsToMany
