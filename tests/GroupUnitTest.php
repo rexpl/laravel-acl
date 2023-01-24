@@ -53,8 +53,7 @@ class GroupUnitTest extends TestBase
 
         $group->addPermission($permissionID);
 
-        $this->assertSame(
-            true,
+        $this->assertTrue(
             $group->groupPermissions()->contains(Permission::find($permissionID))
         );
 
@@ -77,12 +76,15 @@ class GroupUnitTest extends TestBase
 
         $group->addParentGroup($parent);
 
-        $this->assertSame(
-            true,
+        $this->assertTrue(
             $group->parentGroups()->contains(GroupModel::find($parent->id()))
         );
 
         $group->removeParentGroup($parent);
+
+        $this->assertFalse(
+            $group->parentGroups()->contains(GroupModel::find($parent->id()))
+        );
 
         $group->destroy();
         $parent->destroy();
@@ -101,12 +103,15 @@ class GroupUnitTest extends TestBase
 
         $group->addChildGroup($child);
 
-        $this->assertSame(
-            true,
+        $this->assertTrue(
             $group->childGroups()->contains(GroupModel::find($child->id()))
         );
 
         $group->removeChildGroup($child);
+
+        $this->assertFalse(
+            $group->childGroups()->contains(GroupModel::find($child->id()))
+        );
 
         $group->destroy();
         $child->destroy();
