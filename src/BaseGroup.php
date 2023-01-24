@@ -58,9 +58,9 @@ abstract class BaseGroup
      * 
      * @param Permission|string|int $permission
      * 
-     * @return void
+     * @return static
      */
-    public function addPermission(Permission|string|int $permission): void
+    public function addPermission(Permission|string|int $permission): static
     {
         $permission = $this->fetchPermission($permission);
 
@@ -70,6 +70,8 @@ abstract class BaseGroup
         $record->group_id = $this->group()->id;
 
         $record->save();
+
+        return $this;
     }
 
 
@@ -78,15 +80,17 @@ abstract class BaseGroup
      * 
      * @param Permission|string|int $permission
      * 
-     * @return void
+     * @return static
      */
-    public function removePermission(Permission|string|int $permission): void
+    public function removePermission(Permission|string|int $permission): static
     {
         $permission = $this->fetchPermission($permission);
 
         GroupPermission::where('permission_id', $permission->id)
             ->where('group_id', $this->group()->id)
             ->delete();
+
+        return $this;
     }
 
 
@@ -134,9 +138,9 @@ abstract class BaseGroup
      * 
      * @param Group|int $group
      * 
-     * @return void
+     * @return static
      */
-    public function addParentGroup(Group|int $group): void
+    public function addParentGroup(Group|int $group): static
     {
         if (is_int($group)) $group = Group::find($group);
 
@@ -146,6 +150,8 @@ abstract class BaseGroup
         $record->parent_id = $group->id();
 
         $record->save();
+
+        return $this;
     }
 
 
@@ -154,15 +160,17 @@ abstract class BaseGroup
      * 
      * @param Group|int $group
      * 
-     * @return void
+     * @return static
      */
-    public function removeParentGroup(Group|int $group): void
+    public function removeParentGroup(Group|int $group): static
     {
         if (is_int($group)) $group = Group::find($group);
 
         ParentGroup::where('child_id', $this->group()->id)
             ->where('parent_id', $group->id())
             ->delete();
+
+            return $this;
     }
 
 
@@ -188,14 +196,7 @@ abstract class BaseGroup
     {
         if (is_int($group)) $group = Group::find($group);
 
-        $record = new ParentGroup();
-
-        $record->child_id = $group->id();
-        $record->parent_id = $this->group()->id;
-
-        $record->save();
-
-        return $this;
+        return $group->addParentGroup($this);
     }
 
 
@@ -225,11 +226,7 @@ abstract class BaseGroup
     {
         if (is_int($group)) $group = Group::find($group);
 
-        ParentGroup::where('child_id', $group->id())
-            ->where('parent_id', $this->group()->id)
-            ->delete();
-
-        return $this;
+        return $group->removeParentGroup($this);
     }
 
 
