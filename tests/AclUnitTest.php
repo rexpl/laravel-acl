@@ -17,6 +17,12 @@ use Rexpl\LaravelAcl\Exceptions\UnknownPermissionException;
 
 class AclUnitTest extends TestBase
 {
+    protected ModelsUser $auth1;
+    protected ModelsUser $auth2;
+    protected ModelsUser $auth3;
+    protected ModelsUser $auth4;
+    protected ModelsUser $auth5;
+
     /**
      * @return void
      */
