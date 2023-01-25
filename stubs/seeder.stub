@@ -1,0 +1,36 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Seeder;
+use Rexpl\LaravelAcl\Group;
+use Rexpl\LaravelAcl\Models\Permission;
+
+class {{ class }} extends Seeder
+{
+    /**
+     * All made permissions.
+     * 
+     * @var array
+     */
+    private array $permissions = [];
+
+
+    /**
+     * All made groups.
+     * 
+     * @var array
+     */
+    private array $groups = [];
+
+
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        {{ content }}
+    }
+}

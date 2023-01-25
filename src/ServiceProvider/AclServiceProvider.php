@@ -12,6 +12,24 @@ use Rexpl\LaravelAcl\User;
 class AclServiceProvider extends ServiceProvider
 {
     /**
+     * All commands
+     *
+     * @var array
+     */
+    private array $commands = [
+        \Rexpl\LaravelAcl\Commands\SeedCommand::class,
+
+        \Rexpl\LaravelAcl\Commands\Permission\CreatePermission::class,
+        \Rexpl\LaravelAcl\Commands\Permission\DeletePermission::class,
+        \Rexpl\LaravelAcl\Commands\Permission\ListPermission::class,
+
+        \Rexpl\LaravelAcl\Commands\Group\CreateGroup::class,
+        \Rexpl\LaravelAcl\Commands\Group\DeleteGroup::class,
+        \Rexpl\LaravelAcl\Commands\Group\ListGroup::class,
+    ];
+    
+
+    /**
      * Register any application services.
      *
      * @return void
@@ -20,10 +38,7 @@ class AclServiceProvider extends ServiceProvider
     {
         $this->app->bind(
             User::class,
-            function ()
-            {
-                return User::find((int) Auth::id());
-            }
+            fn () => User::find(Auth::id())
         );
     }
 
@@ -35,28 +50,16 @@ class AclServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
         $this->mergeConfigFrom(
             __DIR__.'/../../config/acl.php', 'acl'
         );
 
         if ($this->app->runningInConsole()) {
 
-            $this->commands([
-
-                \Rexpl\LaravelAcl\Commands\Permission\CreatePermission::class,
-                \Rexpl\LaravelAcl\Commands\Permission\DeletePermission::class,
-                \Rexpl\LaravelAcl\Commands\Permission\ListPermission::class,
-
-                \Rexpl\LaravelAcl\Commands\Group\CreateGroup::class,
-                \Rexpl\LaravelAcl\Commands\Group\DeleteGroup::class,
-                \Rexpl\LaravelAcl\Commands\Group\ListGroup::class,
-
-                \Rexpl\LaravelAcl\Commands\User\UserPermission::class,
-                \Rexpl\LaravelAcl\Commands\User\UserGroup::class,
-
-                \Rexpl\LaravelAcl\Commands\Record\RecordInfo::class,
-
-            ]);
+            $this->commands(
+                $this->commands
+            );
 
             $this->publishes([
                 __DIR__.'/../../config/acl.php' => config_path('acl.php'),
@@ -66,7 +69,5 @@ class AclServiceProvider extends ServiceProvider
 
            if (config('acl.gates', false)) Acl::buildGates(); 
         }
-    
-        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
     }
 }
