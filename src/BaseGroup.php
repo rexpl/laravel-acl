@@ -6,17 +6,19 @@ namespace Rexpl\LaravelAcl;
 
 use Illuminate\Support\Collection;
 use Rexpl\LaravelAcl\Exceptions\ResourceNotFoundException;
+use Rexpl\LaravelAcl\Internal\GroupPermissions;
 use Rexpl\LaravelAcl\Models\{
     Group as GroupModel,
     ParentGroup,
     GroupPermission,
-    Permission,
     GroupDependency,
     GroupUser
 };
 
 abstract class BaseGroup
 {
+    use GroupPermissions;
+
     /**
      * @var GroupModel|null
      */
@@ -40,86 +42,6 @@ abstract class BaseGroup
      * @return GroupModel
      */
     abstract protected function fetchGroupModel(): GroupModel;
-
-
-    /**
-     * Return all permissions.
-     * 
-     * @return Collection
-     */
-    public function groupPermissions(): Collection
-    {
-        return $this->group()->permissions()->get();
-    }
-
-
-    /**
-     * Adds a permission to the group.
-     * 
-     * @param Permission|string|int $permission
-     * 
-     * @return static
-     */
-    public function addPermission(Permission|string|int $permission): static
-    {
-        $permission = $this->fetchPermission($permission);
-
-        $record = new GroupPermission();
-
-        $record->permission_id = $permission->id;
-        $record->group_id = $this->group()->id;
-
-        $record->save();
-
-        return $this;
-    }
-
-
-    /**
-     * Removes a permission from the group.
-     * 
-     * @param Permission|string|int $permission
-     * 
-     * @return static
-     */
-    public function removePermission(Permission|string|int $permission): static
-    {
-        $permission = $this->fetchPermission($permission);
-
-        GroupPermission::where('permission_id', $permission->id)
-            ->where('group_id', $this->group()->id)
-            ->delete();
-
-        return $this;
-    }
-
-
-    /**
-     * Fetches the permission model to be sure it exist
-     * 
-     * @param Permission|string|int $permission
-     * 
-     * @return Permission
-     */
-    protected function fetchPermission(Permission|string|int $permission): Permission
-    {
-        if (!$permission instanceof Permission) {
-
-            $result = is_numeric($permission)
-                ? Permission::find($permission)
-                : Permission::firstWhere('name', $permission);
-
-            if (null === $result) {        
-                throw new ResourceNotFoundException(
-                    'Permission ' . $permission . ', not found.'
-                );
-            }
-
-            $permission = $result;
-        }        
-
-        return $permission;
-    }
 
 
     /**
