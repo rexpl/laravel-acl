@@ -118,7 +118,9 @@ abstract class BaseGroup
     {
         if (is_int($group)) $group = Group::find($group);
 
-        return $group->addParentGroup($this);
+        $group->addParentGroup($this);
+
+        return $this;
     }
 
 
@@ -148,7 +150,9 @@ abstract class BaseGroup
     {
         if (is_int($group)) $group = Group::find($group);
 
-        return $group->removeParentGroup($this);
+        $group->removeParentGroup($this);
+
+        return $this;
     }
 
 
