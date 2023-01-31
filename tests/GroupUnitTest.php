@@ -54,13 +54,17 @@ class GroupUnitTest extends TestBase
         $group->addPermission($permissionID);
 
         $this->assertTrue(
-            $group->groupPermissions()->contains(Permission::find($permissionID))
+            $group->directPermissions()->contains(Permission::find($permissionID))
         );
 
         $group->removePermission($permissionID);
 
         $group->destroy();
         Acl::deletePermission($permissionID);
+
+        $this->expectException(ResourceNotFoundException::class);
+
+        $group->addPermission('permission_that_doesnt_exist');
     }
 
 
