@@ -84,4 +84,31 @@ class UserUnitTest extends TestBase
 
         Acl::deleteUser($userID);
     }
+
+
+    /**
+     * Test user group deleteion.
+     * 
+     * @return void
+     */
+    public function testUserGroup(): void
+    {
+        // We create a user.
+        $user = Acl::newUser(34);
+        $user->addGroup($group = Acl::newGroup('Test Group 34'));
+
+        $this->assertTrue(
+            $user->allGroups()->contains($group->id())
+        );
+
+        // We delete the group manually
+        GroupModel::destroy($user->groupID());
+
+        // We get a fresh instance.
+        $user = $user->fresh();
+
+        $this->expectException(ResourceNotFoundException::class);
+
+        $user->groupID();
+    }
 }

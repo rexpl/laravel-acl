@@ -179,7 +179,7 @@ final class User
      */
     public function allGroups(): Collection
     {
-        return GroupUser::where('user_id', $this->id)->get()->load('group');
+        return GroupUser::where('user_id', $this->id)->get();
     }
 
 
