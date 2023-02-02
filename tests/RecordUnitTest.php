@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl\Tests;
 
-use Rexpl\LaravelAcl\Acl;
+use Rexpl\LaravelAcl\Facades\Acl;
 use Rexpl\LaravelAcl\Exceptions\UnknownPermissionException;
-use Rexpl\LaravelAcl\Models\GroupUser;
+use Rexpl\LaravelAcl\Record;
 
 class RecordUnitTest extends TestBase
 {
@@ -17,7 +17,6 @@ class RecordUnitTest extends TestBase
      */
     public function testCrudRecord(): void
     {
-        Acl::newRecord('test', 1);
         $record = Acl::record('test', 1);
 
         $group = Acl::newGroup('testCrudRecord');
@@ -26,7 +25,7 @@ class RecordUnitTest extends TestBase
         $user->addGroup($group);
         $user->refresh();
 
-        $record->assign($group, Acl::R__);
+        $record->assign($group, Record::READ);
         $this->assertSame(
             true,
             $record->canReadRecord($user)
@@ -34,7 +33,7 @@ class RecordUnitTest extends TestBase
 
         $record->refresh();
         
-        $record->assign($group, Acl::RW_);
+        $record->assign($group, Record::READ|Record::WRITE);
         $this->assertSame(
             true,
             $record->canWriteRecord($user)
@@ -49,7 +48,7 @@ class RecordUnitTest extends TestBase
         /**
          * We still expect false because the result is cached.
          */
-        $record->assign($group->id(), Acl::RWD);
+        $record->assign($group->id(), Record::READ|Record::WRITE|Record::DELETE);
         $this->assertSame(
             false,
             $record->canDeleteRecord($user)

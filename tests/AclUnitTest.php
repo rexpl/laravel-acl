@@ -6,13 +6,12 @@ namespace Rexpl\LaravelAcl\Tests;
 
 use App\Models\Test;
 use App\Models\User as ModelsUser;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Rexpl\LaravelAcl\Acl;
-use Rexpl\LaravelAcl\Group;
+use Rexpl\LaravelAcl\Facades\Acl;
 use Rexpl\LaravelAcl\Models\Permission;
 use Rexpl\LaravelAcl\Record;
-use Rexpl\LaravelAcl\User;
 use Rexpl\LaravelAcl\Exceptions\UnknownPermissionException;
 
 class AclUnitTest extends TestBase
@@ -35,26 +34,26 @@ class AclUnitTest extends TestBase
         // We start by creating users
         $this->auth1 = new ModelsUser();
         $this->auth1->id = 1;
-        $user1 = User::new(1);
+        $user1 = Acl::newUser(1);
         $this->auth2 = new ModelsUser();
         $this->auth2->id = 2;
-        $user2 = User::new(2);
+        $user2 = Acl::newUser(2);
         $this->auth3 = new ModelsUser();
         $this->auth3->id = 3;
-        $user3 = User::new(3);
+        $user3 = Acl::newUser(3);
         $this->auth4 = new ModelsUser();
         $this->auth4->id = 4;
-        $user4 = User::new(4);
+        $user4 = Acl::newUser(4);
         $this->auth5 = new ModelsUser();
         $this->auth5->id = 5;
-        $user5 = User::new(5);
+        $user5 = Acl::newUser(5);
 
         // We create groups
-        $group1 = Group::new('acl_test_group_1');
-        $group2 = Group::new('acl_test_group_2');
-        $group3 = Group::new('acl_test_group_3');
-        $group4 = Group::new('acl_test_group_4');
-        $group5 = Group::new('acl_test_group_5');
+        $group1 = Acl::newGroup('acl_test_group_1');
+        $group2 = Acl::newGroup('acl_test_group_2');
+        $group3 = Acl::newGroup('acl_test_group_3');
+        $group4 = Acl::newGroup('acl_test_group_4');
+        $group5 = Acl::newGroup('acl_test_group_5');
 
         // We add child/parent groups
         $group1->addParentGroup($group2);
@@ -79,13 +78,20 @@ class AclUnitTest extends TestBase
         $group5->addPermission(Acl::permissionName($permissionDeleteID));
 
         // We flush every cache to register every changes
-        Group::flush();
+        Acl::flush();
         $user1->refresh();
         $user2->refresh();
         $user3->refresh();
 
         // We build the gates
-        Acl::buildGates();
+        foreach (Acl::permissions() as $permission) {
+
+            Gate::define(
+                $permission->name,
+                fn (Authenticatable $user) => Acl::user($user->getAuthIdentifier())
+                    ->canWithPermission($permission->name)
+            );
+        }
 
         Gate::guessPolicyNamesUsing(function () {
             return TestPolicy::class;
@@ -99,6 +105,11 @@ class AclUnitTest extends TestBase
         $this->assertTrue(Gate::allows('test:read'));
         $this->assertFalse(Gate::allows('test:delete'));
 
+        $this->assertSame(
+            $user1->groupID(),
+            $this->auth1->acl()->groupID()
+        );
+
         Auth::login($this->auth2);
 
         $this->assertTrue(Gate::allows('test:delete'));
@@ -108,9 +119,9 @@ class AclUnitTest extends TestBase
         $test = new Test();
         $test->id = 1;
 
-        $user1->addStdGroup($group1, Acl::R__);
-        $user1->addStdGroup($group2->id(), Acl::RW_);
-        $user1->addStdGroup($group5, Acl::R_D);
+        $user1->addStdGroup($group1, Record::READ);
+        $user1->addStdGroup($group2->id(), Record::READ | Record::WRITE);
+        $user1->addStdGroup($group5, Record::READ | Record::DELETE);
 
         $user1->refresh();
 

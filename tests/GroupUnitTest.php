@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl\Tests;
 
-use Rexpl\LaravelAcl\Acl;
+use Rexpl\LaravelAcl\Facades\Acl;
 use Rexpl\LaravelAcl\Exceptions\ResourceNotFoundException;
 use Rexpl\LaravelAcl\Models\Group as GroupModel;
 use Rexpl\LaravelAcl\Models\Permission;
@@ -29,7 +29,7 @@ class GroupUnitTest extends TestBase
             GroupModel::find($group->id())->name
         );
 
-        $group->destroy();
+        $group->delete();
 
         /**
          * We expect an exception because the group has been deleted.
@@ -59,7 +59,7 @@ class GroupUnitTest extends TestBase
 
         $group->removePermission($permissionID);
 
-        $group->destroy();
+        $group->delete();
         Acl::deletePermission($permissionID);
 
         $this->expectException(ResourceNotFoundException::class);
@@ -87,11 +87,11 @@ class GroupUnitTest extends TestBase
         $group->removeParentGroup($parent);
 
         $this->assertFalse(
-            $group->parentGroups()->contains(GroupModel::find($parent->id()))
+            $group->parentGroups()->contains($parent->id())
         );
 
-        $group->destroy();
-        $parent->destroy();
+        $group->delete();
+        $parent->delete();
     }
 
 
@@ -117,7 +117,7 @@ class GroupUnitTest extends TestBase
             $group->childGroups()->contains(GroupModel::find($child->id()))
         );
 
-        $group->destroy();
-        $child->destroy();
+        $group->delete();
+        $child->delete();
     }
 }

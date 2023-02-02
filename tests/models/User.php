@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Rexpl\LaravelAcl\Support\UserAcl;
 
 class User extends Authenticatable
 {
+    use UserAcl;
+
     /**
      * The attributes that are mass assignable.
      *

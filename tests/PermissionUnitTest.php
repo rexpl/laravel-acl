@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl\Tests;
 
-use Rexpl\LaravelAcl\Acl;
+use Rexpl\LaravelAcl\Facades\Acl;
 
 class PermissionUnitTest extends TestBase
 {

@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl\Tests;
 
-use Rexpl\LaravelAcl\Acl;
+use Rexpl\LaravelAcl\Facades\Acl;
 use Rexpl\LaravelAcl\Exceptions\ResourceNotFoundException;
 use Rexpl\LaravelAcl\Models\Group as GroupModel;
-use Rexpl\LaravelAcl\User;
 
 class UserUnitTest extends TestBase
 {
@@ -21,9 +20,9 @@ class UserUnitTest extends TestBase
         $userID = 1;
         Acl::newUser($userID);
 
-        User::flush();
+        Acl::flush();
 
-        $user = User::find($userID);
+        $user = Acl::user($userID);
         
         /**
          * The name is fetched from db, so we successfully created the group.
@@ -33,7 +32,7 @@ class UserUnitTest extends TestBase
             GroupModel::firstWhere('user_id', $userID)->id
         );
 
-        $user->destroy();
+        $user->delete();
 
         /**
          * We expect an exception because the group has been deleted.
@@ -81,7 +80,7 @@ class UserUnitTest extends TestBase
             $userObject3->groups()
         );
 
-        User::find($userID)->removeGroup($group);
+        Acl::user($userID)->removeGroup($group);
 
         Acl::deleteUser($userID);
     }

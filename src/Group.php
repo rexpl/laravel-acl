@@ -4,28 +4,27 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl;
 
+use Illuminate\Database\Eloquent\Collection;
+use Rexpl\LaravelAcl\Internal\GroupPermissions;
+use Rexpl\LaravelAcl\Internal\PackageUtility;
 use Rexpl\LaravelAcl\Models\Group as GroupModel;
-use RuntimeException;
+use Rexpl\LaravelAcl\Models\GroupDependency;
+use Rexpl\LaravelAcl\Models\GroupPermission;
+use Rexpl\LaravelAcl\Models\GroupUser;
+use Rexpl\LaravelAcl\Models\ParentGroup;
 
-final class Group extends BaseGroup
+final class Group
 {
-    /**
-     * Saves the already set instances.
-     * 
-     * @var array<static>
-     */
-    protected static $groups = [];
-
+    use GroupPermissions, PackageUtility;
 
     /**
-     * @param GroupModel $group
+     * @param \Rexpl\LaravelAcl\Models\Group $group
      * 
      * @return void
      */
-    public function __construct(GroupModel $group)
-    {
-        $this->group = $group;
-    }
+    public function __construct(
+        protected GroupModel $group
+    ) {}
 
 
     /**
@@ -37,82 +36,166 @@ final class Group extends BaseGroup
     {
         return $this->group->id;
     }
-    
-    
+
+
     /**
-    * Returns the group model.
-    * 
-    * @throws RuntimeException
-    */
-    protected function fetchGroupModel(): GroupModel
+     * Returns the group model.
+     * 
+     * @return \Rexpl\LaravelAcl\Models\Group
+     */
+    protected function group(): GroupModel
     {
-        throw new RuntimeException(
-            'Called Group::fetchGroupModel()'
-        );
+        return $this->group;
     }
 
 
     /**
-     * returns the group instance.
+     * Return all the parent groups.
      * 
-     * @param int $id
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function parentGroups(): Collection
+    {
+        return $this->group->parents()->get();
+    }
+
+
+    /**
+     * Add parent group.
+     * 
+     * @param \Rexpl\LaravelAcl\Group|int $group
      * 
      * @return static
      */
-    public static function find(int $id): static
+    public function addParentGroup(Group|int $group): static
     {
-        if (isset(static::$groups[$id])) return static::$groups[$id];
+        ParentGroup::create([
+            'child_id' => $this->group->id,
+            'parent_id' => $this->validGroup($group)->id(),
+        ]);
 
-        static::$groups[$id] = new static(static::getGroupByID($id));
-        return static::$groups[$id];
+        return $this;
+    }
+
+
+    /**
+     * Remove parent group.
+     * 
+     * @param \Rexpl\LaravelAcl\Group|int $group
+     * 
+     * @return static
+     */
+    public function removeParentGroup(Group|int $group): static
+    {
+        ParentGroup::where('child_id', $this->group()->id)
+            ->where('parent_id', $this->validGroup($group)->id())
+            ->delete();
+
+        return $this;
+    }
+
+
+    /**
+     * Returns all the child groups
+     * 
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function childGroups(): Collection
+    {
+        return $this->group()->childrens()->get();
+    }
+
+
+    /**
+     * Add a child group.
+     * 
+     * @param \Rexpl\LaravelAcl\Group|int $group
+     * 
+     * @return static
+     */
+    public function addChildGroup(Group|int $group): static
+    {
+        $this->validGroup($group)->addParentGroup($this);
+
+        return $this;
+    }
+
+
+    /**
+     * Add parent group.
+     * 
+     * @param \Rexpl\LaravelAcl\Group|int $group
+     * 
+     * @return void
+     * 
+     * @deprecated 1.0 Use addChildGroup instead (without the s)
+     */
+    public function addChildGroups(Group|int $group): void
+    {
+        $this->addChildGroup($group);
+    }
+
+
+    /**
+     * Remove the specified child group.
+     * 
+     * @param \Rexpl\LaravelAcl\Group|int $group
+     * 
+     * @return static
+     */
+    public function removeChildGroup(Group|int $group): static
+    {
+        $this->validGroup($group)->removeParentGroup($this);
+
+        return $this;
+    }
+
+
+    /**
+     * Remove parent group.
+     * 
+     * @param \Rexpl\LaravelAcl\Group|int $group
+     * 
+     * @return void
+     * 
+     * @deprecated 1.0 Use removeChildGroup instead (without the s)
+     */
+    public function removeChildGroups(Group|int $group): void
+    {
+        $this->removeChildGroup($group);
     }
 
 
     /**
      * Deletes the group by ID.
      * 
-     * @param int $id
      * @param bool $clean
      * 
      * @return void
      */
-    public static function delete(int $id, bool $clean = true): void
+    public function delete(bool $clean = true)
     {
-        if (isset(static::$groups[$id])) unset(static::$groups[$id]);
+        $this->acl()->clearGroupFromSavedInstances($this->group->id);
 
-        $group = static::getGroupByID($id);
+        if ($clean) $this->cleanGroup($this->group->id);
 
-        if ($clean) static::cleanGroup($group->id);
-
-        $group->delete();
+        return $this->group->delete();
     }
 
 
     /**
-     * Creates new group.
+     * Cleans data associated to any kind of group.
      * 
-     * @param string|int $name
-     * 
-     * @return static
-     */
-    public static function new(string|int $name): static
-    {
-        $group = new GroupModel();
-        $group->name = $name;
-        $group->save();
-
-        static::$groups[$group->id] = new static($group);
-        return static::$groups[$group->id];
-    }
-
-
-    /**
-     * Flush the saved instances for long running proccesses.
+     * @param int $id
      * 
      * @return void
      */
-    public static function flush(): void
+    protected function cleanGroup(int $id): void
     {
-        static::$groups = [];
+        GroupUser::where('group_id', $id)->delete();
+        GroupDependency::where('group_id', $id)->delete();
+        GroupPermission::where('group_id', $id)->delete();
+        ParentGroup::where('child_id', $id)
+            ->orWhere('parent_id', $id)->delete();
     }
 }

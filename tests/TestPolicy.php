@@ -11,7 +11,7 @@ class TestPolicy extends Policy
      *
      * @var string
      */
-    protected $acronym = 'test';
+    protected string $acronym = 'test';
 
 
     /**
@@ -19,7 +19,7 @@ class TestPolicy extends Policy
      *
      * @var array
      */
-    protected $permissions = [
+    protected array $permissions = [
         'read' => 'test:read',
         'write' => 'test:write',
         'delete' => 'test:delete',

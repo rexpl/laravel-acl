@@ -7,8 +7,7 @@ namespace Rexpl\LaravelAcl\Tests;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
-use Rexpl\LaravelAcl\Acl;
-use Rexpl\LaravelAcl\Group;
+use Rexpl\LaravelAcl\Facades\Acl;
 
 class SeedCommandUnitTest extends TestBase
 {
@@ -29,17 +28,17 @@ class SeedCommandUnitTest extends TestBase
         Acl::newPermission('user:write');
         Acl::newPermission('user:delete');
 
-        Group::new('Test Group 2')
+        Acl::newGroup('Test Group 2')
             ->addPermission('user:read')
             ->addPermission('user:write')
             ->addPermission('user:delete')
             ->addChildGroup(
-                Group::new('Test Group 1')
+                Acl::newGroup('Test Group 1')
                     ->addPermission('user:read')
                     ->addPermission('user:write')
             )
             ->addChildGroup(
-                Group::new('Test Group 3')
+                Acl::newGroup('Test Group 3')
                     ->addPermission('user:read')
             );
 
