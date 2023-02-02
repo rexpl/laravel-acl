@@ -25,6 +25,16 @@ class Group extends Model
 
 
     /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array<string>
+     */
+    protected $guarded = [
+        'id'
+    ];
+
+
+    /**
      * Get all the groups users.
      * 
      * @return HasMany
