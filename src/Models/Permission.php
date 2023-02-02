@@ -26,7 +26,7 @@ class Permission extends Model
     /**
      * The attributes that aren't mass assignable.
      *
-     * @var array
+     * @var array<string>
      */
     protected $guarded = [
         'id'

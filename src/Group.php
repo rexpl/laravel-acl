@@ -173,13 +173,13 @@ final class Group
      * 
      * @return void
      */
-    public function delete(bool $clean = true)
+    public function delete(bool $clean = true): void
     {
         $this->acl()->clearGroupFromSavedInstances($this->group->id);
 
         if ($clean) $this->cleanGroup($this->group->id);
 
-        return $this->group->delete();
+        $this->group->delete();
     }
 
 
