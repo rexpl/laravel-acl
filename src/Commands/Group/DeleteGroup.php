@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl\Commands\Group;
 
 use Illuminate\Console\Command;
-use Rexpl\LaravelAcl\Group;
+use Rexpl\LaravelAcl\Facades\Acl;
 
 class DeleteGroup extends Command
 {
@@ -32,7 +32,7 @@ class DeleteGroup extends Command
      */
     public function handle(): void
     {
-        Group::delete(
+        Acl::deleteGroup(
             intval($this->argument('id') ?? $this->ask('Enter group ID')),
             null === $this->option('clean')
         );

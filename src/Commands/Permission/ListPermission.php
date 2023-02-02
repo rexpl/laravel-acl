@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl\Commands\Permission;
 
 use Illuminate\Console\Command;
-use Rexpl\LaravelAcl\Acl;
+use Rexpl\LaravelAcl\Facades\Acl;
 
 class ListPermission extends Command
 {

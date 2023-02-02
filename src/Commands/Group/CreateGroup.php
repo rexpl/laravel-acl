@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl\Commands\Group;
 
 use Illuminate\Console\Command;
-use Rexpl\LaravelAcl\Group;
+use Rexpl\LaravelAcl\Facades\Acl;
 
 class CreateGroup extends Command
 {
@@ -32,7 +32,7 @@ class CreateGroup extends Command
      */
     public function handle(): void
     {
-        $group = Group::new(
+        $group = Acl::newGroup(
             $this->argument('name') ?? $this->ask('Enter new group name')
         );
 
