@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl\ServiceProvider;
 
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Rexpl\LaravelAcl\Acl;
-use Rexpl\LaravelAcl\User;
 
 class AclServiceProvider extends ServiceProvider
 {
@@ -37,8 +37,8 @@ class AclServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            User::class,
-            fn () => User::find(Auth::id())
+            'rexpl-acl-facade',
+            fn () => new Acl()
         );
     }
 
@@ -67,7 +67,27 @@ class AclServiceProvider extends ServiceProvider
         }
         else {
 
-           if (config('acl.gates', false)) Acl::buildGates(); 
+           if (config('acl.gates', false)) $this->buildGates();
+        }
+    }
+
+
+    /**
+     * Build gates for each permission on package boot.
+     * 
+     * @return void
+     */
+    public function buildGates(): void
+    {
+        $acl = new Acl();
+
+        foreach ($acl->permissions() as $permission) {
+
+            Gate::define(
+                $permission->name,
+                fn (Authenticatable $user) => $acl->user($user->getAuthIdentifier())
+                    ->canWithPermission($permission->name)
+            );
         }
     }
 }
