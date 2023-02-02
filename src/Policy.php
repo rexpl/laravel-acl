@@ -185,7 +185,7 @@ abstract class Policy
      * 
      * @return bool
      */
-    public function create(Authenticatable $user = null): bool
+    public function create(Authenticatable $user): bool
     {
         return $this->hasPermission(
             $this->user($user), 'write'

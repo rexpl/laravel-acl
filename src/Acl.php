@@ -165,7 +165,7 @@ class Acl
      * 
      * @param int $id
      * 
-     * @return array
+     * @return array<int>
      */
     protected function fetchAllUserGroups(int $id): array
     {

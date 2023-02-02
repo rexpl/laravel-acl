@@ -14,7 +14,7 @@ class AclServiceProvider extends ServiceProvider
     /**
      * All commands
      *
-     * @var array
+     * @var array<string>
      */
     private array $commands = [
         \Rexpl\LaravelAcl\Commands\SeedCommand::class,
