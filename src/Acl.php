@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Rexpl\LaravelAcl;
 
+use BadMethodCallException;
+use Closure;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +36,14 @@ class Acl
      * @var array<int,\Rexpl\LaravelAcl\Group>
      */
     protected static array $cachedGroupInstances = [];
+
+
+    /**
+     * Registered macros.
+     * 
+     * @var array<string,\Closure>
+     */
+    protected static array $macros = [];
 
 
     /**
@@ -545,5 +555,66 @@ class Acl
         if (!$this->isUserInstanceCached($id)) return;
 
         unset(self::$cachedUserInstances[$id]);
+    }
+
+
+    /**
+     * Register a custom macro.
+     * 
+     * @param string $name
+     * @param Closure $closure
+     * 
+     * @return void
+     */
+    public function macro(string $name, Closure $closure): void
+    {
+        static::$macros[$name] = $closure;
+    }
+
+
+    /**
+     * Check if a macro exists.
+     * 
+     * @param string $name
+     * 
+     * @return bool
+     */
+    public function hasMacro(string $name): bool
+    {
+        return isset(static::$macros[$name]);
+    }
+
+
+    /**
+     * Clear all macros.
+     * 
+     * @return void
+     */
+    public function clearMacros(): void
+    {
+        static::$macros = [];
+    }
+
+
+    /**
+     * Hanlde macro calls.
+     * 
+     * @param string $name
+     * @param array $arguments
+     * 
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        if (!$this->hasMacro($name)) {
+
+            throw new BadMethodCallException(sprintf(
+                'Call to undefined method %s::%s()', static::class, $name
+            ));
+        }
+
+        $closure = static::$macros[$name]->bindTo($this);
+
+        return $closure(...$arguments);
     }
 }

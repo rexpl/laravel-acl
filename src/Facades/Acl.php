@@ -21,6 +21,9 @@ use Illuminate\Support\Facades\Facade;
  * @method static int|null permissionID(string $name) Returns the permission id. Returns null if permission not found.
  * @method static \Illuminate\Database\Eloquent\Collection permissions() Returns all the permissions.
  * @method static void flush() Flush the saved instances for long running proccesses.
+ * @method static void macro(string $name, \Closure $closure) Register a custom macro.
+ * @method static bool hasMacro(string $name) Check if a macro exists.
+ * @method static void clearMacros() Clear all macros.
  * 
  * @see \Rexpl\LaravelAcl\Acl
  */
