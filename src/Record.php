@@ -51,7 +51,7 @@ final class Record
      * 
      * @var array<int>
      */
-    protected const READ_RANGE = [4, 5, 6, 7];
+    public const READ_RANGE = [4, 5, 6, 7];
 
 
     /**
@@ -59,7 +59,7 @@ final class Record
      * 
      * @var array<int>
      */
-    protected const WRITE_RANGE = [2, 3, 6, 7];
+    public const WRITE_RANGE = [2, 3, 6, 7];
 
 
     /**
@@ -67,7 +67,7 @@ final class Record
      * 
      * @var array<int>
      */
-    protected const DELETE_RANGE = [1, 3, 5, 7];
+    public const DELETE_RANGE = [1, 3, 5, 7];
 
     
     /**

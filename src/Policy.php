@@ -42,6 +42,19 @@ abstract class Policy
 
 
     /**
+     * Returns the model acronym.
+     * 
+     * @return string
+     */
+    public function getModelAcronym(): string
+    {
+        $this->bootIfNotBooted();
+
+        return $this->acronym;
+    }
+
+
+    /**
      * Boot the policy if not booted.
      * 
      * @return void
@@ -194,6 +207,21 @@ abstract class Policy
 
 
     /**
+     * Determine whether the user can update any models.
+     *
+     * @param \Illuminate\Contracts\Auth\Authenticatable $user
+     * 
+     * @return bool
+     */
+    public function updateAny(Authenticatable $user): bool
+    {
+        return $this->hasPermission(
+            $this->user($user), 'write'
+        );
+    }
+
+
+    /**
      * Determine whether the user can update the model.
      *
      * @param \Illuminate\Contracts\Auth\Authenticatable $user
@@ -209,6 +237,21 @@ abstract class Policy
 
         return (new Record($this->acronym, $model->getKey()))
             ->canWriteRecord($user);
+    }
+
+
+    /**
+     * Determine whether the user can update any models.
+     *
+     * @param \Illuminate\Contracts\Auth\Authenticatable $user
+     * 
+     * @return bool
+     */
+    public function deleteAny(Authenticatable $user): bool
+    {
+        return $this->hasPermission(
+            $this->user($user), 'delete'
+        );
     }
 
 
