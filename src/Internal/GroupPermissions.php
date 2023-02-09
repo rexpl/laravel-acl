@@ -27,7 +27,7 @@ trait GroupPermissions
      */
     public function directPermissions(): Collection
     {
-        return $this->group()->permissions;
+        return $this->group()->permissions()->get();
     }
 
 
@@ -37,6 +37,7 @@ trait GroupPermissions
      * @return \Illuminate\Database\Eloquent\Collection
      * 
      * @deprecated 1.0 Use directPermissions() instead.
+     * @codeCoverageIgnore
      */
     public function groupPermissions(): Collection
     {
