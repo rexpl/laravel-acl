@@ -1,23 +1,25 @@
 <?php
 
-namespace Rexpl\LaravelAcl\Tests;
+declare(strict_types=1);
+
+namespace Rexpl\LaravelAcl\Tests\Policies;
 
 use Rexpl\LaravelAcl\Policy;
 
-class TestPolicy extends Policy
+class TextPolicy extends Policy
 {
     /**
-     * Acronym.
-     *
+     * Acronym for resource.
+     * 
      * @var string
      */
     protected string $acronym = 'test';
 
 
     /**
-     * Needed permissions
-     *
-     * @var array
+     * Required permissions.
+     * 
+     * @var array<string,string>
      */
     protected array $permissions = [
         'read' => 'test:read',

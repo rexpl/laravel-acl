@@ -2,19 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Rexpl\LaravelAcl\Tests;
+namespace Rexpl\LaravelAcl\Tests\UnitTest;
 
 use BadMethodCallException;
 use Rexpl\LaravelAcl\Facades\Acl;
+use Rexpl\LaravelAcl\Tests\TestCase;
 
-class MacroUnitTest extends TestBase
+class MacroTest extends TestCase
 {
     /**
      * Test the macro functionnality.
      * 
      * @return void
      */
-    public function testMacro(): void
+    public function test_macro(): void
     {
         $user = Acl::newUser(random_int(100, 999));
 
@@ -23,18 +24,21 @@ class MacroUnitTest extends TestBase
         });
 
         $this->assertTrue(
-            Acl::hasMacro('test')
+            Acl::hasMacro('test'),
+            'Failed to assert that the new macro has been correctly registered.'
         );
 
         $this->assertSame(
             Acl::user($user->id()),
-            Acl::test($user->id())
+            Acl::test($user->id()),
+            'Failed to assert that the macro function is working correctly.'
         );
 
         Acl::clearMacros();
 
         $this->assertFalse(
-            Acl::hasMacro('test')
+            Acl::hasMacro('test'),
+            'Failed to assert that all macros have been correctly cleared.'
         );
 
         $this->expectException(BadMethodCallException::class);

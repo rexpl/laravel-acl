@@ -2,16 +2,27 @@
 
 namespace Rexpl\LaravelAcl\Tests;
 
-use Orchestra\Testbench\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Gate;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
-class TestBase extends TestCase
+class TestCase extends OrchestraTestCase
 {
+    use RefreshDatabase;
+
+    /**
+     * Setup the test environment.
+     *
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->getPackageProviders($this->app);
-        $this->defineDatabaseMigrations();
+        Gate::policy(
+            Rexpl\LaravelAcl\Tests\Models\TestModel::class,
+            Rexpl\LaravelAcl\Tests\Policies\TestPolicy::class
+        );
     }
 
 
@@ -20,7 +31,7 @@ class TestBase extends TestCase
      *
      * @param  \Illuminate\Foundation\Application  $app
      *
-     * @return array<int, string>
+     * @return array<int,string>
      */
     protected function getPackageProviders($app)
     {
@@ -38,6 +49,6 @@ class TestBase extends TestCase
      */
     protected function defineDatabaseMigrations()
     {
-        $this->artisan('migrate');
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
     }
 }
