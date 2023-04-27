@@ -33,7 +33,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Rexpl\\LaravelAcl\\Tests\\": "tests/",
+            "Rexpl\\LaravelAcl\\Tests\\": "tests/"
         }
     },
     "extra": {
