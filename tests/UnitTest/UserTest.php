@@ -19,7 +19,7 @@ class UserTest extends TestCase
 {
     /**
      * Test the creation/deletion of users.
-     * 
+     *
      * @return void
      */
     public function test_user_crud(): void
@@ -29,7 +29,7 @@ class UserTest extends TestCase
             'name' => 'test_user_crud'
         ]);
         $userAcl = Acl::newUser($user->id);
-        
+
         // The group id is fetched from db, so we successfully created the user because
         // a user is under the hood a group with a single user.
         $this->assertSame(
@@ -50,7 +50,7 @@ class UserTest extends TestCase
 
     /**
      * Test: add/remove groups to a user.
-     * 
+     *
      * @return void
      */
     public function test_user_groups(): void
@@ -96,7 +96,7 @@ class UserTest extends TestCase
 
     /**
      * Test: add/remove permissions to a user.
-     * 
+     *
      * @return void
      */
     public function test_user_permissions(): void
@@ -129,7 +129,7 @@ class UserTest extends TestCase
         $this->assertTrue(
             $userAcl->canWithPermission('permission:test_user_permissions')
         );
-        
+
         $userAcl->removePermission('permission:test_user_permissions');
 
         // We verify the group is removed.
@@ -147,7 +147,7 @@ class UserTest extends TestCase
 
     /**
      * Test the user std acl.
-     * 
+     *
      * @return void
      */
     public function test_user_std_acl(): void
@@ -176,7 +176,7 @@ class UserTest extends TestCase
         $record = TestModel::create([
             'name' => 'record:test_user_std_acl'
         ]);
-        $recordAcl = $userAcl->create('test', $record->id);
+        $recordAcl = $userAcl->create($record);
 
         // We now verify the group is successfully added to the new record.
         $this->assertTrue(
@@ -211,16 +211,16 @@ class UserTest extends TestCase
         $userAcl->delete();
 
         $this->expectException(UnknownPermissionException::class);
-        
+
         // We try to add an unknown permission level to the user.
         // The user and group are already deleted, we are just after the exception.
         $userAcl->addStdGroup($group, 8);
     }
 
-    
+
     /**
      * Test the cache functionality for useŕ retrieval.
-     * 
+     *
      * @return void
      */
     public function test_user_cache(): void
@@ -239,7 +239,7 @@ class UserTest extends TestCase
         $userAclInstance1->addGroup($group);
 
         // The groups of both of these instances should be the same because there groups are
-        // cached so even though we added a group in instance 1, they still ouput the same group list. 
+        // cached so even though we added a group in instance 1, they still ouput the same group list.
         $this->assertSame(
             $userAclInstance1->groups(),
             $userAclInstance2->groups()
@@ -266,7 +266,7 @@ class UserTest extends TestCase
 
     /**
      * We try to fetch a user with a deleted user group and make sure we get the expected exception.
-     * 
+     *
      * @return void
      */
     public function test_user_group_deleted(): void
@@ -280,7 +280,7 @@ class UserTest extends TestCase
         // We save it for compare later.
         $userGroupID = $userAcl->groupID();
 
-        // We create a group and add it otherwise we won't be able to retrieve the user once 
+        // We create a group and add it otherwise we won't be able to retrieve the user once
         // the user group is deleted. Adding this dummy group allows us to retrieve the user
         // once his personnal group has been deleted.
         $group = Acl::newGroup('group:test_user_group_deleted');
