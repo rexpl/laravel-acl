@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Rexpl\LaravelAcl\Models\GroupDependency;
 use Illuminate\Support\Facades\Cache;
 use Rexpl\LaravelAcl\Exceptions\UnknownPermissionException;
@@ -16,7 +17,7 @@ final class Record
 
     /**
      * Permission level for read.
-     * 
+     *
      * @var int
      */
     public const READ = 4;
@@ -24,7 +25,7 @@ final class Record
 
     /**
      * Permission level for write.
-     * 
+     *
      * @var int
      */
     public const WRITE = 2;
@@ -32,7 +33,7 @@ final class Record
 
     /**
      * Permission level for delete.
-     * 
+     *
      * @var int
      */
     public const DELETE = 1;
@@ -40,7 +41,7 @@ final class Record
 
     /**
      * All allowed numbers.
-     * 
+     *
      * @var array<int>
      */
     public const FULL_RANGE = [1, 2, 3, 4, 5, 6, 7];
@@ -48,7 +49,7 @@ final class Record
 
     /**
      * Permission levels wich contain read permission.
-     * 
+     *
      * @var array<int>
      */
     public const READ_RANGE = [4, 5, 6, 7];
@@ -56,7 +57,7 @@ final class Record
 
     /**
      * Permission levels wich contain write permission.
-     * 
+     *
      * @var array<int>
      */
     public const WRITE_RANGE = [2, 3, 6, 7];
@@ -64,15 +65,15 @@ final class Record
 
     /**
      * Permission levels wich contain delete permission.
-     * 
+     *
      * @var array<int>
      */
     public const DELETE_RANGE = [1, 3, 5, 7];
 
-    
+
     /**
      * Should use cache.
-     * 
+     *
      * @var bool
      */
     protected bool $cache;
@@ -80,7 +81,7 @@ final class Record
 
     /**
      * How long to keep cached values.
-     * 
+     *
      * @var int
      */
     protected int $time;
@@ -88,7 +89,7 @@ final class Record
 
     /**
      * All the records models
-     * 
+     *
      * @var \Illuminate\Database\Eloquent\Collection
      */
     protected Collection $record;
@@ -96,21 +97,17 @@ final class Record
 
     /**
      * Are the records fetched.
-     * 
+     *
      * @var bool
      */
     protected bool $isRecordFetched = false;
 
 
     /**
-     * @param string $acronym
-     * @param int $id
-     * 
-     * @return void
+     * @param \Illuminate\Database\Eloquent\Model $model
      */
     public function __construct(
-        protected string $acronym,
-        protected int $id
+        protected Model $model
     ) {
         $this->cache = (bool) config('acl.record_cache', true);
         $this->time = (int) config('acl.record_duration', 300);
@@ -119,9 +116,9 @@ final class Record
 
     /**
      * See if record can be read only based on groups (without validation permissions).
-     * 
+     *
      * @param \Rexpl\LaravelAcl\User $user
-     * 
+     *
      * @return bool
      */
     public function canReadRecord(User $user): bool
@@ -132,9 +129,9 @@ final class Record
 
     /**
      * See if record can be writen only based on groups (without validation permissions).
-     * 
+     *
      * @param User $user
-     * 
+     *
      * @return bool
      */
     public function canWriteRecord(User $user): bool
@@ -145,9 +142,9 @@ final class Record
 
     /**
      * See if record can be deleted only based on groups (without validation permissions).
-     * 
+     *
      * @param User $user
-     * 
+     *
      * @return bool
      */
     public function canDeleteRecord(User $user): bool
@@ -158,11 +155,11 @@ final class Record
 
     /**
      * Can do with record.
-     * 
+     *
      * @param User $user
      * @param string $cacheIndex
      * @param array<int> $neededLevel
-     * 
+     *
      * @return bool
      */
     protected function canDoWithRecord(User $user, string $cacheIndex, array $neededLevel): bool
@@ -181,23 +178,23 @@ final class Record
 
             $result = $this->loopGroups($user->groups(), $neededLevel);
         }
-            
+
         return $result;
     }
 
 
     /**
      * Loops through each user group to see if it matches.
-     * 
+     *
      * @param array<int> $groups
      * @param array<int> $neededLevel
-     * 
+     *
      * @return bool
      */
     protected function loopGroups(array $groups, array $neededLevel): bool
     {
         foreach ($groups as $group) {
-            
+
             if ($this->isMatch($group, $neededLevel)) return true;
         }
 
@@ -207,16 +204,16 @@ final class Record
 
     /**
      * See if there is match between the group array and the record array.
-     * 
+     *
      * @param int $group
      * @param array<int> $neededLevel
-     * 
+     *
      * @return bool
      */
     protected function isMatch(int $group, array $neededLevel): bool
     {
         foreach ($this->record() as $row) {
-            
+
             if (
                 $row->group_id === $group
                 && in_array($row->permission_level, $neededLevel)
@@ -229,7 +226,7 @@ final class Record
 
     /**
      * Return all the depencies.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function record(): Collection
@@ -239,7 +236,7 @@ final class Record
             $this->record = GroupDependency::where('ressource', $this->acronym)
                 ->where('ressource_id', $this->id)
                 ->get();
-            
+
             $this->isRecordFetched = true;
         }
 
@@ -249,10 +246,10 @@ final class Record
 
     /**
      * Assign new group to the record.
-     * 
+     *
      * @param \Rexpl\LaravelAcl\Group|int $group
      * @param int $level
-     * 
+     *
      * @return void
      */
     public function assign(Group|int $group, int $level): void
@@ -277,9 +274,9 @@ final class Record
 
     /**
      * Remove group from record.
-     * 
+     *
      * @param \Rexpl\LaravelAcl\Group|int $group
-     * 
+     *
      * @return void
      */
     public function remove(Group|int $group): void
@@ -293,7 +290,7 @@ final class Record
 
     /**
      * Refresh the record information.
-     * 
+     *
      * @return void
      */
     public function refresh()
@@ -304,7 +301,7 @@ final class Record
 
     /**
      * Delete the record.
-     * 
+     *
      * @return void
      */
     public function delete(): void

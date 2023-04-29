@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Rexpl\LaravelAcl\Exceptions\{
     UnknownPermissionException,
     ResourceNotFoundException
@@ -26,8 +27,8 @@ final class User
      * @param array<string> $permissions
      * @param array<int> $groups
      * @param array<\Rexpl\LaravelAcl\Internal\StdAclRow> $stdAcl
-     * @param GroupModel|null $group
-     * 
+     * @param \Rexpl\LaravelAcl\Models\Group|null $group
+     *
      * @return void
      */
     public function __construct(
@@ -41,7 +42,7 @@ final class User
 
     /**
      * Returns the group model.
-     * 
+     *
      * @return \Rexpl\LaravelAcl\Models\Group
      */
     protected function group(): GroupModel
@@ -52,14 +53,14 @@ final class User
 
     /**
      * Returns the group model.
-     * 
+     *
      * @return GroupModel
      */
     protected function fetchGroupModel(): GroupModel
     {
         $this->group = GroupModel::firstWhere('user_id', $this->id);
 
-        if (null === $this->group) {        
+        if (null === $this->group) {
             throw new ResourceNotFoundException(sprintf(
                 'Acl group with user id: %s, not found.', $this->id
             ));
@@ -67,11 +68,11 @@ final class User
 
         return $this->group;
     }
-    
-    
+
+
     /**
      * Return the user id.
-     * 
+     *
      * @return int
      */
     public function id(): int
@@ -82,7 +83,7 @@ final class User
 
     /**
      * Returns the user group ID.
-     * 
+     *
      * @return int
      */
     public function groupID(): int
@@ -93,9 +94,9 @@ final class User
 
     /**
      * See if the user has the permission.
-     * 
+     *
      * @param string $name
-     * 
+     *
      * @return bool
      */
     public function canWithPermission(string $name): bool
@@ -106,7 +107,7 @@ final class User
 
     /**
      * Returns all child groups (ids).
-     * 
+     *
      * @return array<int>
      */
     public function groups(): array
@@ -117,7 +118,7 @@ final class User
 
     /**
      * Returns all the permissions the user can use.
-     * 
+     *
      * @return array<string>
      */
     public function permissions(): array
@@ -128,7 +129,7 @@ final class User
 
     /**
      * Returns all the std acl of the user
-     * 
+     *
      * @return array<\Rexpl\LaravelAcl\Internal\StdAclRow>
      */
     public function stdAcl(): array
@@ -139,9 +140,9 @@ final class User
 
     /**
      * Add the group to the user.
-     * 
+     *
      * @param \Rexpl\LaravelAcl\Group|int $group
-     * 
+     *
      * @return static
      */
     public function addGroup(Group|int $group): static
@@ -157,9 +158,9 @@ final class User
 
     /**
      * Remove group from the user.
-     * 
+     *
      * @param \Rexpl\LaravelAcl\Group|int $group
-     * 
+     *
      * @return static
      */
     public function removeGroup(Group|int $group): static
@@ -174,7 +175,7 @@ final class User
 
     /**
      * Returns all the groups where the user is in.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function allGroups(): Collection
@@ -185,10 +186,10 @@ final class User
 
     /**
      * Add standard acl group.
-     * 
+     *
      * @param \Rexpl\LaravelAcl\Group|int $group
      * @param int $level
-     * 
+     *
      * @return static
      */
     public function addStdGroup(Group|int $group, int $level): static
@@ -211,9 +212,9 @@ final class User
 
     /**
      * Remove standard acl group.
-     * 
+     *
      * @param \Rexpl\LaravelAcl\Group|int $group
-     * 
+     *
      * @return static
      */
     public function removeStdGroup(Group|int $group): static
@@ -228,18 +229,18 @@ final class User
 
     /**
      * Call when user creates a new record.
-     * 
-     * @param string $acronym
-     * @param int $id
-     * 
-     * @return Record
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     *
+     * @return \Rexpl\LaravelAcl\Record
+     * @throws \Rexpl\LaravelAcl\Exceptions\UnknownPermissionException
      */
-    public function create(string $acronym, int $id): Record
+    public function create(Model $model): Record
     {
-        $record = new Record($acronym, $id);
+        $record = new Record($model);
 
         foreach ($this->stdAcl as $row) {
-            
+
             $record->assign(
                 $row->groupID,
                 $row->permissionLevel
@@ -252,7 +253,7 @@ final class User
 
     /**
      * Clear the user from the cache.
-     * 
+     *
      * @return void
      */
     public function clear(): void
@@ -263,7 +264,7 @@ final class User
 
     /**
      * Return an updated instance of the user.
-     * 
+     *
      * @return static
      */
     public function fresh(): static
@@ -276,7 +277,7 @@ final class User
 
     /**
      * Refresh the instance.
-     * 
+     *
      * @return static
      */
     public function refresh(): static
@@ -295,7 +296,7 @@ final class User
      * Delete the user.
      *
      * @param bool $clean
-     * 
+     *
      * @return void
      */
     public function delete(bool $clean = true): void
