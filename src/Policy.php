@@ -14,115 +14,38 @@ abstract class Policy
     use PackageUtility;
 
     /**
-     * Is booted
-     * 
-     * @var bool
+     * The permission necessary to read this model.
+     *
+     * @var string|null
      */
-    protected static bool $isBooted = false;
+    protected ?string $readPermission = null;
 
 
     /**
-     * Acronym for resource.
-     * 
-     * @var string
+     * The permission necessary to write on the model.
+     *
+     * @var string|null
      */
-    protected string $acronym = '';
+    protected ?string $writePermission = null;
 
 
     /**
-     * Required permissions.
-     * 
-     * @var array<string,string>
+     * The permission necessary to delete this model.
+     *
+     * @var string|null
      */
-    protected array $permissions = [
-        'read' => '',
-        'write' => '',
-        'delete' => '',
-    ];
-
-
-    /**
-     * Returns the model acronym.
-     * 
-     * @return string
-     */
-    public function getModelAcronym(): string
-    {
-        $this->bootIfNotBooted();
-
-        return $this->acronym;
-    }
-
-
-    /**
-     * Boot the policy if not booted.
-     * 
-     * @return void
-     */
-    protected function bootIfNotBooted(): void
-    {
-        if (static::$isBooted) return;
-
-        $this->verifyAcronym();
-        $this->verifyPermissions();
-
-        static::$isBooted = true;
-    }
-
-
-    /**
-     * Verify the acronym is valid.
-     * 
-     * @return void
-     * 
-     * @throws \Rexpl\LaravelAcl\Exceptions\LaravelAclException
-     */
-    protected function verifyAcronym(): void
-    {
-        // We ensure we have an acronym, we know for sure it's a string (strict mode)
-        if ('' !== $this->acronym) return;
-
-        throw new LaravelAclException(sprintf(
-            'No acronym defined in %s policy.', get_class($this)
-        ));
-    }
-
-
-    /**
-     * Verify the permission array is valid.
-     * 
-     * @return void
-     * 
-     * @throws \Rexpl\LaravelAcl\Exceptions\LaravelAclException
-     */
-    protected function verifyPermissions(): void
-    {
-        foreach (['read', 'write', 'delete'] as $key) {
-            
-            if (
-                isset($this->permissions[$key])
-                && ('' !== $this->permissions[$key] || null === $this->permissions[$key])
-            ) continue;
-
-            throw new LaravelAclException(sprintf(
-                'Invalid or undefined permission for %s action in %s policy.', $key, get_class($this)
-            ));
-        }
-    }
+    protected ?string $deletePermission = null;
 
 
     /**
      * Returns a coorect user instance.
-     * 
+     *
      * @param \Illuminate\Contracts\Auth\Authenticatable $user
-     * 
+     *
      * @return \Rexpl\LaravelAcl\User
      */
     protected function user(Authenticatable $user): User
     {
-        // Every public method calls this method so we can boot the instance from here.
-        $this->bootIfNotBooted();
-
         return $this->acl()->user(
             $user->getAuthIdentifier()
         );
@@ -131,29 +54,19 @@ abstract class Policy
 
     /**
      * Verify if a user has a permission.
-     * 
+     *
      * @param \Rexpl\LaravelAcl\User $user
-     * @param string $action
-     * 
+     * @param string|null $permission
+     *
      * @return bool
-     * 
-     * @throws \Rexpl\LaravelAcl\Exceptions\LaravelAclException
      */
-    protected function hasPermission(User $user, string $action): bool
+    protected function hasPermission(User $user, ?string $permission): bool
     {
-        // We verify the action exists
-        if (!isset($this->permissions[$action])) {
-
-            throw new LaravelAclException(
-                'Attempt to validate an unset permission action.'
-            );
-        }
-
-        // If the required permissions has been set to null there is no permission required and we skip
-        if (null === $this->permissions[$action]) return true;
+        // If the required permissions has been set to null there is no permission required, and we skip
+        if (null === $permission) return true;
 
         // We start a normal permission verification
-        return $user->canWithPermission($this->permissions[$action]);
+        return $user->canWithPermission($permission);
     }
 
 
@@ -161,13 +74,13 @@ abstract class Policy
      * Determine whether the user can view any models.
      *
      * @param \Illuminate\Contracts\Auth\Authenticatable $user
-     * 
+     *
      * @return bool
      */
     public function viewAny(Authenticatable $user): bool
     {
         return $this->hasPermission(
-            $this->user($user), 'read'
+            $this->user($user), $this->readPermission
         );
     }
 
@@ -177,16 +90,16 @@ abstract class Policy
      *
      * @param \Illuminate\Contracts\Auth\Authenticatable $user
      * @param \Illuminate\Database\Eloquent\Model $model
-     * 
+     *
      * @return bool
      */
     public function view(Authenticatable $user, Model $model): bool
     {
         $user = $this->user($user);
 
-        if (!$this->hasPermission($user, 'read')) return false;
+        if (!$this->hasPermission($user, $this->readPermission)) return false;
 
-        return (new Record($this->acronym, $model->getKey()))
+        return (new Record($model))
             ->canReadRecord($user);
     }
 
@@ -195,13 +108,13 @@ abstract class Policy
      * Determine whether the user can create models.
      *
      * @param \Illuminate\Contracts\Auth\Authenticatable $user
-     * 
+     *
      * @return bool
      */
     public function create(Authenticatable $user): bool
     {
         return $this->hasPermission(
-            $this->user($user), 'write'
+            $this->user($user), $this->writePermission
         );
     }
 
@@ -210,13 +123,13 @@ abstract class Policy
      * Determine whether the user can update any models.
      *
      * @param \Illuminate\Contracts\Auth\Authenticatable $user
-     * 
+     *
      * @return bool
      */
     public function updateAny(Authenticatable $user): bool
     {
         return $this->hasPermission(
-            $this->user($user), 'write'
+            $this->user($user), $this->writePermission
         );
     }
 
@@ -226,16 +139,16 @@ abstract class Policy
      *
      * @param \Illuminate\Contracts\Auth\Authenticatable $user
      * @param \Illuminate\Database\Eloquent\Model $model
-     * 
+     *
      * @return bool
      */
     public function update(Authenticatable $user, Model $model): bool
     {
         $user = $this->user($user);
 
-        if (!$this->hasPermission($user, 'write')) return false;
+        if (!$this->hasPermission($user, $this->writePermission)) return false;
 
-        return (new Record($this->acronym, $model->getKey()))
+        return (new Record($model)
             ->canWriteRecord($user);
     }
 
@@ -244,13 +157,13 @@ abstract class Policy
      * Determine whether the user can update any models.
      *
      * @param \Illuminate\Contracts\Auth\Authenticatable $user
-     * 
+     *
      * @return bool
      */
     public function deleteAny(Authenticatable $user): bool
     {
         return $this->hasPermission(
-            $this->user($user), 'delete'
+            $this->user($user), $this->deletePermission
         );
     }
 
@@ -260,16 +173,16 @@ abstract class Policy
      *
      * @param \Illuminate\Contracts\Auth\Authenticatable $user
      * @param \Illuminate\Database\Eloquent\Model $model
-     * 
+     *
      * @return bool
      */
     public function delete(Authenticatable $user, Model $model): bool
     {
         $user = $this->user($user);
 
-        if (!$this->hasPermission($user, 'delete')) return false;
+        if (!$this->hasPermission($user, $this->deletePermission)) return false;
 
-        return (new Record($this->acronym, $model->getKey()))
+        return (new Record($model))
             ->canDeleteRecord($user);
     }
 }
