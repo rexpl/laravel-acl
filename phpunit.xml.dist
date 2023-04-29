@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit 
+<phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     bootstrap="vendor/autoload.php"
     backupGlobals="false"
@@ -24,7 +24,7 @@
     </coverage>
     <testsuites>
         <testsuite name="Unit test">
-            <directory suffix="UnitTest.php">tests</directory>
+            <directory suffix="Test.php">tests</directory>
         </testsuite>
     </testsuites>
     <php>
