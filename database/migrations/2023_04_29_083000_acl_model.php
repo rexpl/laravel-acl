@@ -13,13 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('acl_group_dependencies', function (Blueprint $table) {
+        Schema::create('acl_models', function (Blueprint $table) {
             $table->id();
-            $table->smallInteger('model_id');
-            $table->foreignId('record_id');
-            $table->foreignId('group_id');
-            $table->tinyInteger('permission_level');
-            $table->index(['model_id', 'record_id']);
+            $table->string('name');
         });
     }
 
@@ -31,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('acl_group_dependencies');
+        Schema::dropIfExists('acl_models');
     }
 };
