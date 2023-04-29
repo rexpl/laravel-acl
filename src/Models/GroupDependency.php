@@ -12,7 +12,7 @@ class GroupDependency extends Model
      * @var string
      */
     protected $table = 'acl_group_dependencies';
-    
+
 
     /**
      * Indicates if the model should be timestamped.
@@ -20,16 +20,16 @@ class GroupDependency extends Model
      * @var bool
      */
     public $timestamps = false;
-    
-    
+
+
     /**
     * The attributes that are mass assignable.
     *
     * @var array<string>
     */
     protected $fillable = [
-        'ressource',
-        'ressource_id',
+        'model_id',
+        'record_id',
         'group_id',
         'permission_level',
     ];
