@@ -6,6 +6,7 @@ namespace Rexpl\LaravelAcl;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Rexpl\LaravelAcl\Internal\ModelToId;
 use Rexpl\LaravelAcl\Models\GroupDependency;
 use Illuminate\Support\Facades\Cache;
 use Rexpl\LaravelAcl\Exceptions\UnknownPermissionException;
@@ -13,7 +14,7 @@ use Rexpl\LaravelAcl\Internal\PackageUtility;
 
 final class Record
 {
-    use PackageUtility;
+    use PackageUtility, ModelToId;
 
     /**
      * Permission level for read.
@@ -104,13 +105,33 @@ final class Record
 
 
     /**
+     * The model id.
+     *
+     * @var int
+     */
+    protected int $modelId;
+
+
+    /**
+     * The record id.
+     *
+     * @var int
+     */
+    protected int $recordId;
+
+
+    /**
      * @param \Illuminate\Database\Eloquent\Model $model
      */
-    public function __construct(
-        protected Model $model
-    ) {
+    public function __construct(Model $model)
+    {
+        // Config
         $this->cache = (bool) config('acl.record_cache', true);
         $this->time = (int) config('acl.record_duration', 300);
+
+        // Record
+        $this->modelId = $this->getModelId($model);
+        $this->recordId = $model->getKey();
     }
 
 
@@ -167,7 +188,7 @@ final class Record
         if ($this->cache) {
 
             $result = Cache::remember(
-                'rexpl_acl_user_'.$user->id().'_'.$cacheIndex.'_'.$this->acronym.'_'.$this->id,
+                'rexpl_acl_user_'.$user->id().'_'.$cacheIndex.'_'.$this->modelId.'_'.$this->recordId,
                 $this->time,
                 function () use ($user, $neededLevel): bool
                 {
@@ -233,8 +254,8 @@ final class Record
     {
         if (!$this->isRecordFetched) {
 
-            $this->record = GroupDependency::where('ressource', $this->acronym)
-                ->where('ressource_id', $this->id)
+            $this->record = GroupDependency::where('model_id', $this->modelId)
+                ->where('record_id', $this->recordId)
                 ->get();
 
             $this->isRecordFetched = true;
@@ -251,6 +272,7 @@ final class Record
      * @param int $level
      *
      * @return void
+     * @throws \Rexpl\LaravelAcl\Exceptions\UnknownPermissionException
      */
     public function assign(Group|int $group, int $level): void
     {
@@ -263,8 +285,8 @@ final class Record
 
         GroupDependency::updateOrCreate(
             [
-                'ressource' => $this->acronym,
-                'ressource_id' => $this->id,
+                'model_id' => $this->modelId,
+                'record_id' => $this->recordId,
                 'group_id' => $this->validGroup($group)->id()
             ],
             ['permission_level' => $level]
@@ -281,8 +303,8 @@ final class Record
      */
     public function remove(Group|int $group): void
     {
-        GroupDependency::where('ressource', $this->acronym)
-            ->where('ressource_id', $this->id)
+        GroupDependency::where('model_id', $this->modelId)
+            ->where('record_id', $this->recordId)
             ->where('group_id', $this->validGroup($group)->id())
             ->delete();
     }
@@ -306,8 +328,8 @@ final class Record
      */
     public function delete(): void
     {
-        GroupDependency::where('ressource', $this->acronym)
-            ->where('ressource_id', $this->id)
+        GroupDependency::where('model_id', $this->modelId)
+            ->where('record_id', $this->recordId)
             ->delete();
     }
 }
