@@ -148,7 +148,7 @@ abstract class Policy
 
         if (!$this->hasPermission($user, $this->writePermission)) return false;
 
-        return (new Record($model)
+        return (new Record($model))
             ->canWriteRecord($user);
     }
 
