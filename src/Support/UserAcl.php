@@ -11,11 +11,11 @@ trait UserAcl
 {
     /**
      * Returns the acl instance of the user.
-     * 
+     *
      * @return \Rexpl\LaravelAcl\User
      */
     public function acl(): User
     {
-        return Acl::user($this->getAuthIdentifier());
+        return Acl::user($this);
     }
 }
