@@ -28,7 +28,7 @@ class UserTest extends TestCase
         $user = User::create([
             'name' => 'test_user_crud'
         ]);
-        $userAcl = Acl::newUser($user->id);
+        $userAcl = Acl::newUser($user);
 
         // The group id is fetched from db, so we successfully created the user because
         // a user is under the hood a group with a single user.
@@ -38,13 +38,13 @@ class UserTest extends TestCase
         );
 
         // Cleanup
-        Acl::deleteUser($user->id);
+        Acl::deleteUser($user);
         $user->delete();
 
         // We expect an exception because the user has been deleted.
         $this->expectException(ResourceNotFoundException::class);
 
-        Acl::user($user->id);
+        Acl::user($user);
     }
 
 
@@ -59,7 +59,7 @@ class UserTest extends TestCase
         $user = User::create([
             'name' => 'user:test_user_groups'
         ]);
-        $userAcl = Acl::newUser($user->id);
+        $userAcl = Acl::newUser($user);
 
         // We create a group.
         $group = Acl::newGroup('group:test_user_groups');
@@ -105,7 +105,7 @@ class UserTest extends TestCase
         $user = User::create([
             'name' => 'user:test_user_permissions'
         ]);
-        $userAcl = Acl::newUser($user->id);
+        $userAcl = Acl::newUser($user);
 
         // We create a permission
         $permissionID = Acl::newPermission('permission:test_user_permissions');
@@ -156,7 +156,7 @@ class UserTest extends TestCase
         $user = User::create([
             'name' => 'user:test_user_std_acl'
         ]);
-        $userAcl = Acl::newUser($user->id);
+        $userAcl = Acl::newUser($user);
 
         // We create a group.
         $group = Acl::newGroup('group:test_user_std_acl');
@@ -229,9 +229,9 @@ class UserTest extends TestCase
         $user = User::create([
             'name' => 'user:test_user_cache'
         ]);
-        Acl::newUser($user->id);
+        Acl::newUser($user);
 
-        $userAclInstance1 = Acl::user($user->id);
+        $userAclInstance1 = Acl::user($user);
         $userAclInstance2 = Acl::user($user->id);
 
         $group = Acl::newGroup('group:test_user_cache');
@@ -246,7 +246,7 @@ class UserTest extends TestCase
         );
 
         $userAclInstance1->clear();
-        $userAclInstance3 = Acl::user($user->id);
+        $userAclInstance3 = Acl::user($user);
 
         // These should not be the same because we cleared the user from the cache.
         $this->assertNotSame(

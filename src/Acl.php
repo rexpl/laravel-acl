@@ -6,6 +6,7 @@ namespace Rexpl\LaravelAcl;
 
 use BadMethodCallException;
 use Closure;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -50,10 +51,14 @@ class Acl
     /**
      * Returns the user instance of the specified id.
      *
+     * @param \Illuminate\Contracts\Auth\Authenticatable|int $user
+     * 
      * @return \Rexpl\LaravelAcl\User
      */
-    public function user(int $id): User
+    public function user(Authenticatable|int $user): User
     {
+        $id = is_int($user) ? $user : $user->getAuthIdentifier();
+
         if ($this->isUserInstanceCached($id)) return self::$cachedUserInstances[$id];
 
         return $this->makeNewUserInstance($id);
@@ -63,12 +68,14 @@ class Acl
     /**
      * Creates a new user.
      *
-     * @param int $id
-     *
+     * @param \Illuminate\Contracts\Auth\Authenticatable|int $user
+     * 
      * @return \Rexpl\LaravelAcl\User
      */
-    public function newUser(int $id): User
+    public function newUser(Authenticatable|int $user): User
     {
+        $id = is_int($user) ? $user : $user->getAuthIdentifier();
+
         $group = GroupModel::create([
             'user_id' => $id,
         ]);
@@ -88,14 +95,14 @@ class Acl
     /**
      * Delete a user by id.
      *
-     * @param int $id
+     * @param \Illuminate\Contracts\Auth\Authenticatable|int $user
      * @param bool $clean
      *
      * @return void
      */
-    public function deleteUser(int $id, bool $clean = true): void
+    public function deleteUser(Authenticatable|int $user, bool $clean = true): void
     {
-        $this->user($id)->delete($clean);
+        $this->user($user)->delete($clean);
     }
 
 

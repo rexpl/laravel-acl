@@ -7,9 +7,9 @@ namespace Rexpl\LaravelAcl\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static \Rexpl\LaravelAcl\User user(int $id) Returns the user instance of the specified id.
- * @method static \Rexpl\LaravelAcl\User newUser(int $id) Creates a new user.
- * @method static void deleteUser(int $id, bool $clean) Delete a user by id.
+ * @method static \Rexpl\LaravelAcl\User user(\Illuminate\Contracts\Auth\Authenticatable|int $user) Returns the user instance of the specified id.
+ * @method static \Rexpl\LaravelAcl\User newUser(\Illuminate\Contracts\Auth\Authenticatable|int $user) Creates a new user.
+ * @method static void deleteUser(\Illuminate\Contracts\Auth\Authenticatable|int $user, bool $clean = true) Delete a user by id.
  * @method static \Rexpl\LaravelAcl\Group group(int $id) Returns the group instance of the specified id.
  * @method static \Rexpl\LaravelAcl\Group newGroup(string $name) Creates a new group.
  * @method static void deleteGroup(int $id, bool $clean = true) Deletes a group by id.
@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static void macro(string $name, \Closure $closure) Register a custom macro.
  * @method static bool hasMacro(string $name) Check if a macro exists.
  * @method static void clearMacros() Clear all macros.
- * 
+ *
  * @see \Rexpl\LaravelAcl\Acl
  */
 class Acl extends Facade
