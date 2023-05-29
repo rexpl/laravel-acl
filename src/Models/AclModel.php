@@ -1,17 +1,19 @@
 <?php
 
+declare(Strict_types=1);
+
 namespace Rexpl\LaravelAcl\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GroupDependency extends Model
+class AclModel extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'acl_group_dependencies';
+    protected $table = 'acl_models';
 
 
     /**
@@ -23,14 +25,11 @@ class GroupDependency extends Model
 
 
     /**
-    * The attributes that are mass assignable.
-    *
-    * @var array<string>
-    */
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
     protected $fillable = [
-        'model_id',
-        'record_id',
-        'group_id',
-        'permission_level',
+        'name',
     ];
 }

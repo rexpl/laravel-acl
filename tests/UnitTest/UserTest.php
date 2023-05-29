@@ -176,7 +176,7 @@ class UserTest extends TestCase
         $record = TestModel::create([
             'name' => 'record:test_user_std_acl'
         ]);
-        $recordAcl = $userAcl->create('test', $record->id);
+        $recordAcl = $userAcl->create($record);
 
         // We now verify the group is successfully added to the new record.
         $this->assertTrue(

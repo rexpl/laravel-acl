@@ -8,6 +8,7 @@ use BadMethodCallException;
 use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Rexpl\LaravelAcl\Exceptions\ResourceNotFoundException;
@@ -51,7 +52,7 @@ class Acl
      * Returns the user instance of the specified id.
      *
      * @param \Illuminate\Contracts\Auth\Authenticatable|int $user
-     *
+     * 
      * @return \Rexpl\LaravelAcl\User
      */
     public function user(Authenticatable|int $user): User
@@ -68,7 +69,7 @@ class Acl
      * Creates a new user.
      *
      * @param \Illuminate\Contracts\Auth\Authenticatable|int $user
-     *
+     * 
      * @return \Rexpl\LaravelAcl\User
      */
     public function newUser(Authenticatable|int $user): User
@@ -424,28 +425,26 @@ class Acl
     /**
      * Returns a record.
      *
-     * @param string $acronym
-     * @param int $id
+     * @param \Illuminate\Database\Eloquent\Model $model
      *
      * @return \Rexpl\LaravelAcl\Record
      */
-    public function record(string $acronym, int $id): Record
+    public function record(Model $model): Record
     {
-        return new Record($acronym, $id);
+        return new Record($model);
     }
 
 
     /**
      * Deletes record.
      *
-     * @param string $acronym
-     * @param int $id
+     * @param \Illuminate\Database\Eloquent\Model $model
      *
      * @return void
      */
-    public function deleteRecord(string $acronym, int $id): void
+    public function deleteRecord(Model $model): void
     {
-        $this->record($acronym, $id)->delete();
+        $this->record($model)->delete();
     }
 
 
