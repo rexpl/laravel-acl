@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl\Internal;
 
 use Illuminate\Database\Eloquent\Model;
-use Rexpl\LaravelAcl\Models\AclModel;
+use Rexpl\LaravelAcl\Models\ModelMap;
 
 trait ModelToId
 {
@@ -20,9 +20,9 @@ trait ModelToId
     /**
      * @param \Illuminate\Database\Eloquent\Model $model
      *
-     * @return int
+     * @return int|string
      */
-    protected function getModelId(Model $model): int
+    protected function getModelId(Model $model): int|string
     {
         $modelClass = get_class($model);
 
@@ -34,11 +34,11 @@ trait ModelToId
     /**
      * @param string $modelClass
      *
-     * @return int
+     * @return int|string
      */
-    private function fetchModelId(string $modelClass): int
+    private function fetchModelId(string $modelClass): int|string
     {
-        $model = AclModel::select('id')->where('name', $modelClass)->first();
+        $model = ModelMap::select('id')->where('name', $modelClass)->first();
 
         if ($model === null) $model = $this->createModelId($modelClass);
 
@@ -51,11 +51,11 @@ trait ModelToId
     /**
      * @param string $modelClass
      *
-     * @return \Rexpl\LaravelAcl\Models\AclModel
+     * @return \Rexpl\LaravelAcl\Models\ModelMap
      */
-    private function createModelId(string $modelClass): AclModel
+    private function createModelId(string $modelClass): ModelMap
     {
-        return AclModel::create([
+        return ModelMap::create([
             'name' => $modelClass,
         ]);
     }

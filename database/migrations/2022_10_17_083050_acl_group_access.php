@@ -15,13 +15,16 @@ return new class extends Migration
     public function up()
     {
         Schema::connection(config('acl.database.connection'))
-            ->create(config('acl.database.prefix') . '_permissions', function (Blueprint $table) {
+            ->create(config('acl.database.prefix') . '_group_access', function (Blueprint $table) {
 
                 /** @var \Rexpl\LaravelAcl\Contracts\PrimaryKeyContract $primaryKeyConfigurator */
                 $primaryKeyConfigurator = app(PrimaryKeyContract::class);
 
                 $primaryKeyConfigurator->migratePrimaryKey($table);
-                $table->string('name')->unique();
+                $primaryKeyConfigurator->migrateForeignKey($table, 'model_id');
+                $primaryKeyConfigurator->migrateForeignKey($table, 'record_id');
+                $primaryKeyConfigurator->migrateForeignKey($table, 'group_id');
+                $table->tinyInteger('permission_level');
 
                 if (config('acl.database.timestamps')) {
                     $table->timestamps();
@@ -38,6 +41,6 @@ return new class extends Migration
     public function down()
     {
         Schema::connection(config('acl.database.connection'))
-            ->dropIfExists(config('acl.database.prefix') . '_permissions');
+            ->dropIfExists(config('acl.database.prefix') . '_group_access');
     }
 };

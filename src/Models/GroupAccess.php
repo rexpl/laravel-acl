@@ -5,7 +5,7 @@ namespace Rexpl\LaravelAcl\Models;
 use Illuminate\Database\Eloquent\Model;
 use Rexpl\LaravelAcl\Support\AclModel;
 
-class StdAcl extends Model
+class GroupAccess extends Model
 {
     use AclModel;
 
@@ -14,8 +14,7 @@ class StdAcl extends Model
      *
      * @var string
      */
-    protected string $tableName = '_std_acl';
-
+    protected string $tableName = '_group_access';
 
     /**
      * The attributes that are mass assignable.

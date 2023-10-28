@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Rexpl\LaravelAcl\Tests\UnitTest;
 
 use Rexpl\LaravelAcl\Facades\Acl;
+use Rexpl\LaravelAcl\Models\Permission;
 use Rexpl\LaravelAcl\Tests\TestCase;
 
 class PermissionTest extends TestCase
 {
     /**
      * Test the creation/deletion of permissions.
-     * 
+     *
      * @return void
      */
     public function test_permission_crud(): void
@@ -30,7 +31,7 @@ class PermissionTest extends TestCase
 
         Acl::deletePermission($id);
 
-        $this->assertDatabaseMissing('acl_permissions', [
+        $this->assertDatabaseMissing(Permission::class, [
             'name' => 'test_permission_crud',
         ]);
     }

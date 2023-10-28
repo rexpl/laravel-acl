@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Rexpl\LaravelAcl\Contracts\PrimaryKeyContract;
 
 return new class extends Migration
 {
@@ -13,13 +14,22 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('acl_groups', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->nullable()->unique();
-            $table->foreignId('user_id')->nullable()->unique();
-        });
+        Schema::connection(config('acl.database.connection'))
+            ->create(config('acl.database.prefix') . '_groups', function (Blueprint $table) {
+
+                /** @var \Rexpl\LaravelAcl\Contracts\PrimaryKeyContract $primaryKeyConfigurator */
+                $primaryKeyConfigurator = app(PrimaryKeyContract::class);
+
+                $primaryKeyConfigurator->migratePrimaryKey($table);
+                $table->string('name')->nullable();
+                $primaryKeyConfigurator->migrateForeignKey($table, 'user_id')->nullable();
+
+                if (config('acl.database.timestamps')) {
+                    $table->timestamps();
+                }
+            });
     }
-    
+
 
     /**
      * Reverse the migrations.
@@ -28,6 +38,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('acl_groups');
+        Schema::connection(config('acl.database.connection'))
+            ->dropIfExists(config('acl.database.prefix') . '_groups');
     }
 };

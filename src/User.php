@@ -84,9 +84,9 @@ final class User
     /**
      * Returns the user group ID.
      *
-     * @return int
+     * @return int|string
      */
-    public function groupID(): int
+    public function groupID(): int|string
     {
         return $this->group()->id;
     }
@@ -159,11 +159,11 @@ final class User
     /**
      * Remove group from the user.
      *
-     * @param \Rexpl\LaravelAcl\Group|int $group
+     * @param \Rexpl\LaravelAcl\Group|int|string $group
      *
      * @return static
      */
-    public function removeGroup(Group|int $group): static
+    public function removeGroup(Group|int|string $group): static
     {
         GroupUser::where('user_id', $this->id)
             ->where('group_id', $this->validGroup($group)->id())
@@ -180,7 +180,12 @@ final class User
      */
     public function allGroups(): Collection
     {
-        return GroupUser::where('user_id', $this->id)->get();
+        $pivotTableName = (new GroupUser())->getTable();
+
+        return GroupModel::query()
+            ->join($pivotTableName, 'id', 'group_id')
+            ->where(sprintf('%s.user_id', $pivotTableName), $this->id)
+            ->get();
     }
 
 

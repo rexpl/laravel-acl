@@ -14,7 +14,7 @@ trait GroupPermissions
 {
     /**
      * Returns the group model.
-     * 
+     *
      * @return \Rexpl\LaravelAcl\Models\Group
      */
     abstract protected function group(): GroupModel;
@@ -22,7 +22,7 @@ trait GroupPermissions
 
     /**
      * Returns all direct permissions attached to the group.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function directPermissions(): Collection
@@ -33,9 +33,9 @@ trait GroupPermissions
 
     /**
      * Return all permissions.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
-     * 
+     *
      * @deprecated 1.0 Use directPermissions() instead.
      * @codeCoverageIgnore
      */
@@ -47,9 +47,9 @@ trait GroupPermissions
 
     /**
      * Adds a permission to the group.
-     * 
+     *
      * @param \Rexpl\LaravelAcl\Models\Permission|string|int $permission
-     * 
+     *
      * @return static
      */
     public function addPermission(Permission|string|int $permission): static
@@ -65,9 +65,9 @@ trait GroupPermissions
 
     /**
      * Removes a permission from the group.
-     * 
+     *
      * @param \Rexpl\LaravelAcl\Models\Permission|string|int $permission
-     * 
+     *
      * @return static
      */
     public function removePermission(Permission|string|int $permission): static
@@ -82,27 +82,28 @@ trait GroupPermissions
 
     /**
      * Fetches the permission model to be sure it exist
-     * 
+     *
      * @param \Rexpl\LaravelAcl\Models\Permission|string|int $permission
-     * 
+     *
      * @return \Rexpl\LaravelAcl\Models\Permission
      */
     protected function fetchPermission(Permission|string|int $permission): Permission
     {
         if (!$permission instanceof Permission) {
 
-            $result = is_numeric($permission)
-                ? Permission::find($permission)
-                : Permission::firstWhere('name', $permission);
+            $result = Permission::query()
+                ->where('id', $permission)
+                ->orWhere('name', $permission)
+                ->first();
 
-            if (null === $result) {        
+            if (null === $result) {
                 throw new ResourceNotFoundException(sprintf(
                     'Permission %s, not found.', $permission
                 ));
             }
 
             $permission = $result;
-        }        
+        }
 
         return $permission;
     }
