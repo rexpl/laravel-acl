@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rexpl\LaravelAcl\Tests\UnitTest;
+namespace Rexpl\LaravelAcl\Tests\FeatureTests;
 
 use Rexpl\LaravelAcl\Exceptions\ResourceNotFoundException;
 use Rexpl\LaravelAcl\Exceptions\UnknownPermissionException;
@@ -11,8 +11,8 @@ use Rexpl\LaravelAcl\Internal\StdAclRow;
 use Rexpl\LaravelAcl\Models\Group as GroupModel;
 use Rexpl\LaravelAcl\Models\GroupDependency;
 use Rexpl\LaravelAcl\Record;
-use Rexpl\LaravelAcl\Tests\Models\TestModel;
-use Rexpl\LaravelAcl\Tests\Models\User;
+use Rexpl\LaravelAcl\Tests\test_models\TestModel;
+use Rexpl\LaravelAcl\Tests\test_models\User;
 use Rexpl\LaravelAcl\Tests\TestCase;
 
 class UserTest extends TestCase

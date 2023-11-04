@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rexpl\LaravelAcl\Tests\UnitTest;
+namespace Rexpl\LaravelAcl\Tests\FeatureTests;
 
 use Rexpl\LaravelAcl\Exceptions\ResourceNotFoundException;
 use Rexpl\LaravelAcl\Facades\Acl;
@@ -13,7 +13,7 @@ class GroupTest extends TestCase
 {
     /**
      * Test the creation/deletion of groups.
-     * 
+     *
      * @return void
      */
     public function test_group_crud(): void
@@ -37,7 +37,7 @@ class GroupTest extends TestCase
 
     /**
      * Test the possiblity to add and delete permissions to a group.
-     * 
+     *
      * @return void
      */
     public function test_group_permissions(): void
@@ -68,7 +68,7 @@ class GroupTest extends TestCase
 
     /**
      * Test the possiblity to add and delete a parent to a group.
-     * 
+     *
      * @return void
      */
     public function test_group_parents(): void
@@ -95,7 +95,7 @@ class GroupTest extends TestCase
 
     /**
      * Test the possiblity to add and delete children to a group.
-     * 
+     *
      * @return void
      */
     public function test_group_children(): void

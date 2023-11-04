@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Rexpl\LaravelAcl\Tests\UnitTest;
+namespace Rexpl\LaravelAcl\Tests\FeatureTests;
 
 use BadMethodCallException;
 use Rexpl\LaravelAcl\Facades\Acl;
-use Rexpl\LaravelAcl\Tests\Models\User;
+use Rexpl\LaravelAcl\Tests\test_models\User;
 use Rexpl\LaravelAcl\Tests\TestCase;
 
 class MacroTest extends TestCase
