@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rexpl\LaravelAcl\Tests\UnitTest;
+namespace Rexpl\LaravelAcl\Tests\FeatureTests;
 
 use Rexpl\LaravelAcl\Facades\Acl;
 use Rexpl\LaravelAcl\Models\Permission;

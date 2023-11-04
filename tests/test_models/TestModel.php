@@ -1,6 +1,6 @@
 <?php
 
-namespace Rexpl\LaravelAcl\Tests\Models;
+namespace Rexpl\LaravelAcl\Tests\test_models;
 
 use Illuminate\Database\Eloquent\Model;
 use Rexpl\LaravelAcl\Support\AclQuery;
