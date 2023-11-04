@@ -2,32 +2,19 @@
 
 namespace Rexpl\LaravelAcl\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Rexpl\LaravelAcl\Support\AclModel;
 
-class GroupUser extends Model
+class GroupUser extends Pivot
 {
+    use AclModel;
+
+    protected static bool $isPivotTable = true;
+
     /**
-     * The table associated with the model.
+     * The table associated with the model excluding the suffix.
      *
      * @var string
      */
-    protected $table = 'acl_group_users';
-    
-
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = false;
-
-
-    /**
-     * The attributes that aren't mass assignable.
-     *
-     * @var array<string>
-     */
-    protected $guarded = [
-        'id'
-    ];
+    protected string $tableName = '_group_users';
 }

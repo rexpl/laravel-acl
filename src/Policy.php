@@ -38,7 +38,7 @@ abstract class Policy
 
 
     /**
-     * Returns a coorect user instance.
+     * Returns a correct user instance.
      *
      * @param \Illuminate\Contracts\Auth\Authenticatable $user
      *

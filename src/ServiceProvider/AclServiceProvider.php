@@ -27,7 +27,7 @@ class AclServiceProvider extends ServiceProvider
         \Rexpl\LaravelAcl\Commands\Group\DeleteGroup::class,
         \Rexpl\LaravelAcl\Commands\Group\ListGroup::class,
     ];
-    
+
 
     /**
      * Register any application services.
@@ -45,15 +45,21 @@ class AclServiceProvider extends ServiceProvider
 
     /**
      * Boot the package.
-     * 
+     *
      * @return void
      */
     public function boot(): void
     {
-        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
         $this->mergeConfigFrom(
             __DIR__.'/../../config/acl.php', 'acl'
         );
+
+        $this->app->bind(
+            \Rexpl\LaravelAcl\Contracts\PrimaryKeyContract::class,
+            config('acl.database.primary_key')
+        );
+
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
 
         if ($this->app->runningInConsole()) {
 
@@ -74,7 +80,7 @@ class AclServiceProvider extends ServiceProvider
 
     /**
      * Build gates for each permission on package boot.
-     * 
+     *
      * @return void
      */
     public function buildGates(): void

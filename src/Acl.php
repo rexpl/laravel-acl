@@ -14,13 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Rexpl\LaravelAcl\Exceptions\ResourceNotFoundException;
 use Rexpl\LaravelAcl\Internal\StdAclRow;
 use Rexpl\LaravelAcl\Internal\UserData;
-use Rexpl\LaravelAcl\Models\{
-    Group as GroupModel,
-    GroupPermission,
-    GroupUser,
-    Permission,
-    StdAcl
-};
+use Rexpl\LaravelAcl\Models\{Group as GroupModel, GroupPermission, GroupUser, ParentGroup, Permission, StdAcl};
 
 class Acl
 {
@@ -51,13 +45,13 @@ class Acl
     /**
      * Returns the user instance of the specified id.
      *
-     * @param \Illuminate\Contracts\Auth\Authenticatable|int $user
-     * 
+     * @param \Illuminate\Contracts\Auth\Authenticatable|int|string $user
+     *
      * @return \Rexpl\LaravelAcl\User
      */
-    public function user(Authenticatable|int $user): User
+    public function user(Authenticatable|int|string $user): User
     {
-        $id = is_int($user) ? $user : $user->getAuthIdentifier();
+        $id = is_scalar($user) ? $user : $user->getAuthIdentifier();
 
         if ($this->isUserInstanceCached($id)) return self::$cachedUserInstances[$id];
 
@@ -68,13 +62,13 @@ class Acl
     /**
      * Creates a new user.
      *
-     * @param \Illuminate\Contracts\Auth\Authenticatable|int $user
-     * 
+     * @param \Illuminate\Contracts\Auth\Authenticatable|int|string $user
+     *
      * @return \Rexpl\LaravelAcl\User
      */
-    public function newUser(Authenticatable|int $user): User
+    public function newUser(Authenticatable|int|string $user): User
     {
-        $id = is_int($user) ? $user : $user->getAuthIdentifier();
+        $id = is_scalar($user) ? $user : $user->getAuthIdentifier();
 
         $group = GroupModel::create([
             'user_id' => $id,
@@ -95,12 +89,12 @@ class Acl
     /**
      * Delete a user by id.
      *
-     * @param \Illuminate\Contracts\Auth\Authenticatable|int $user
+     * @param \Illuminate\Contracts\Auth\Authenticatable|int|string $user
      * @param bool $clean
      *
      * @return void
      */
-    public function deleteUser(Authenticatable|int $user, bool $clean = true): void
+    public function deleteUser(Authenticatable|int|string $user, bool $clean = true): void
     {
         $this->user($user)->delete($clean);
     }
@@ -109,11 +103,11 @@ class Acl
     /**
      * Returns whether a user instance is cached or not.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return bool
      */
-    protected function isUserInstanceCached(int $id): bool
+    protected function isUserInstanceCached(int|string $id): bool
     {
         return isset(self::$cachedUserInstances[$id]);
     }
@@ -122,11 +116,11 @@ class Acl
     /**
      * Makes a new user instance with the correct data from the given id.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return \Rexpl\LaravelAcl\User
      */
-    protected function makeNewUserInstance(int $id): User
+    protected function makeNewUserInstance(int|string $id): User
     {
         $userData = $this->getUserData($id);
 
@@ -142,11 +136,11 @@ class Acl
     /**
      * Get the user data from the given id.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return \Rexpl\LaravelAcl\Internal\UserData
      */
-    protected function getUserData(int $id): UserData
+    protected function getUserData(int|string $id): UserData
     {
         if (!config('acl.cache', true)) return $this->fetchUserData($id);
 
@@ -161,11 +155,11 @@ class Acl
     /**
      * Fetch from db the needed data for the user.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return \Rexpl\LaravelAcl\Internal\UserData
      */
-    protected function fetchUserData(int $id): UserData
+    protected function fetchUserData(int|string $id): UserData
     {
         $allDirectUserGroups = $this->fetchAllUserGroups($id);
         $nFactor = (int) config('acl.nFactor', 3);
@@ -181,11 +175,11 @@ class Acl
     /**
      * Return all the group id's for a given user.
      *
-     * @param int $id
+     * @param int|string $id
      *
-     * @return array<int>
+     * @return array<int|string>
      */
-    protected function fetchAllUserGroups(int $id): array
+    protected function fetchAllUserGroups(int|string $id): array
     {
         $allUserGroups = GroupUser::select('group_id')
             ->where('user_id', $id)
@@ -207,10 +201,10 @@ class Acl
     /**
      * Get all child groups of an array of groups relative to n factor.
      *
-     * @param array<int> $groups
+     * @param array<int|string> $groups
      * @param int $nFactor
      *
-     * @return array<int>
+     * @return array<int|string>
      */
     protected function fetchAllChildGroups(array $groups, int $nFactor): array
     {
@@ -227,16 +221,19 @@ class Acl
     /**
      * Fetch all the permissions a user has access to.
      *
-     * @param array<int> $userGroups
+     * @param array<int|string> $userGroups
      * @param int $nFactor
      *
      * @return array<string>
      */
     protected function fetchAllUserPermissions(array $userGroups, $nFactor): array
     {
-        return DB::table('acl_group_permissions as g')
+        $permissionTable = (new Permission())->getTable();
+        $groupPermissionTable = (new GroupPermission())->getTable();
+
+        return DB::table($groupPermissionTable . ' as g')
             ->select('p.name')
-            ->join('acl_permissions as p', 'g.permission_id', '=', 'p.id')
+            ->join($permissionTable . ' as p', 'g.permission_id', '=', 'p.id')
             ->whereIn(
                 'g.group_id',
                 $this->fetchAllParentGroups($userGroups, $nFactor)
@@ -251,10 +248,10 @@ class Acl
     /**
      * Get all parent groups of an array of groups relative to n factor.
      *
-     * @param array<int> $groups
+     * @param array<int|string> $groups
      * @param int $nFactor
      *
-     * @return array<int>
+     * @return array<int|string>
      */
     protected function fetchAllParentGroups(array $groups, int $nFactor): array
     {
@@ -271,21 +268,23 @@ class Acl
     /**
      * Execute the cte query.
      *
-     * @param array<int> $groups
+     * @param array<int|string> $groups
      * @param int $nFactor
      * @param string $retrieveColumn
      *
-     * @return array<int>
+     * @return array<int|string>
      */
     protected function groupFetchQuery(array $groups, int $nFactor, string $retrieveColumn): array
     {
         $compareColumn = $retrieveColumn === 'child_id' ? 'parent_id' : 'child_id';
 
-        $query = DB::table('acl_parent_groups')
+        $parentGroupsTable = (new ParentGroup())->getTable();
+
+        $query = DB::table($parentGroupsTable)
             ->select(DB::raw('`child_id`, `parent_id`, 1'))
             ->whereIn($compareColumn, $groups)
             ->unionAll(
-                DB::table('acl_parent_groups as e')
+                DB::table($parentGroupsTable . ' as e')
                     ->select(DB::raw('`e`.`child_id`, `e`.`parent_id`, `ep`.`n` + 1'))
                     ->join('cte as ep',
                             'ep.' . $retrieveColumn,
@@ -310,11 +309,11 @@ class Acl
     /**
      * Fetches the user std acl.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return array<\Rexpl\LaravelAcl\Internal\StdAclRow>
      */
-    protected function fetchUserStdAcl(int $id): array
+    protected function fetchUserStdAcl(int|string $id): array
     {
         $stdAcl = StdAcl::select('group_id', 'permission_level')
             ->where('user_id', $id)
@@ -330,11 +329,11 @@ class Acl
     /**
      * Returns the group instance of the specified id.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return \Rexpl\LaravelAcl\Group
      */
-    public function group(int $id): Group
+    public function group(int|string $id): Group
     {
         if ($this->isGroupInstanceCached($id)) return self::$cachedGroupInstances[$id];
 
@@ -362,12 +361,12 @@ class Acl
     /**
      * Deletes a group by id.
      *
-     * @param int $id
+     * @param int|string $id
      * @param bool $clean
      *
      * @return void
      */
-    public function deleteGroup(int $id, bool $clean = true): void
+    public function deleteGroup(int|string $id, bool $clean = true): void
     {
         $this->group($id)->delete($clean);
     }
@@ -376,11 +375,11 @@ class Acl
     /**
      * Returns whether a group instance is cached or not.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return bool
      */
-    protected function isGroupInstanceCached(int $id): bool
+    protected function isGroupInstanceCached(int|string $id): bool
     {
         return isset(self::$cachedGroupInstances[$id]);
     }
@@ -389,11 +388,11 @@ class Acl
     /**
      * Makes a new group instance with the correct data from the given id.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return \Rexpl\LaravelAcl\Group
      */
-    protected function makeNewGroupInstance(int $id): Group
+    protected function makeNewGroupInstance(int|string $id): Group
     {
         return new Group(
             $this->fetchGroupModel($id)
@@ -404,11 +403,11 @@ class Acl
     /**
      * Fetches a group model by id.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return \Rexpl\LaravelAcl\Models\Group
      */
-    protected function fetchGroupModel(int $id): GroupModel
+    protected function fetchGroupModel(int|string $id): GroupModel
     {
         $group = GroupModel::find($id);
 
@@ -453,9 +452,9 @@ class Acl
      *
      * @param string $name
      *
-     * @return int
+     * @return int|string
      */
-    public function newPermission(string $name): int
+    public function newPermission(string $name): int|string
     {
         return Permission::create([
             'name' => $name,
@@ -466,12 +465,12 @@ class Acl
     /**
      * Deletes permission.
      *
-     * @param int $id
+     * @param int|string $id
      * @param bool $clean
      *
      * @return void
      */
-    public function deletePermission(int $id, bool $clean = true): void
+    public function deletePermission(int|string $id, bool $clean = true): void
     {
         Permission::destroy($id);
 
@@ -484,11 +483,11 @@ class Acl
     /**
      * Returns the permission name. Returns null if permission not found.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return string|null
      */
-    public function permissionName(int $id): ?string
+    public function permissionName(int|string $id): ?string
     {
         $permission = Permission::find($id);
         return $permission ? $permission->name : null;
@@ -500,9 +499,9 @@ class Acl
      *
      * @param string $name
      *
-     * @return int|null
+     * @return int|string|null
      */
-    public function permissionID(string $name): ?int
+    public function permissionID(string $name): int|string|null
     {
         $permission = Permission::firstWhere('name', $name);
         return $permission ? $permission->id : null;
@@ -535,11 +534,11 @@ class Acl
     /**
      * Remove group from saved instances.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return void
      */
-    public function clearGroupFromSavedInstances(int $id): void
+    public function clearGroupFromSavedInstances(int|string $id): void
     {
         if (!$this->isGroupInstanceCached($id)) return;
 
@@ -550,11 +549,11 @@ class Acl
     /**
      * Remove user from saved instances.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return void
      */
-    public function clearUserFromCache(int $id): void
+    public function clearUserFromCache(int|string $id): void
     {
         Cache::forget('rexpl_acl_user_' . $id);
 

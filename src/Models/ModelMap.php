@@ -1,11 +1,13 @@
 <?php
 
+declare(Strict_types=1);
+
 namespace Rexpl\LaravelAcl\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Rexpl\LaravelAcl\Support\AclModel;
 
-class StdAcl extends Model
+class ModelMap extends Model
 {
     use AclModel;
 
@@ -14,8 +16,7 @@ class StdAcl extends Model
      *
      * @var string
      */
-    protected string $tableName = '_std_acl';
-
+    protected string $tableName = '_model_map';
 
     /**
      * The attributes that are mass assignable.

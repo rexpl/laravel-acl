@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Rexpl\LaravelAcl\Internal\ModelToId;
 use Rexpl\LaravelAcl\Internal\PackageUtility;
-use Rexpl\LaravelAcl\Models\GroupDependency;
+use Rexpl\LaravelAcl\Models\GroupAccess;
 use Rexpl\LaravelAcl\Record;
 
 trait AclQuery
@@ -44,7 +44,7 @@ trait AclQuery
         $modelId = $this->getModelId($this);
         $groups = $this->getUserAclGroups();
 
-        return GroupDependency::select('record_id')
+        return GroupAccess::select('record_id')
             ->where('model_id', $modelId)
             ->whereIn('permission_level', $range)
             ->whereIn('group_id', $groups)

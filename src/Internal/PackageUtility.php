@@ -11,7 +11,7 @@ trait PackageUtility
 {
     /**
      * Acl instance.
-     * 
+     *
      * @var \Rexpl\LaravelAcl\Acl
      */
     private static Acl $acl;
@@ -19,7 +19,7 @@ trait PackageUtility
 
     /**
      * Returns an acl instance.
-     * 
+     *
      * @return \Rexpl\LaravelAcl\Acl
      */
     protected function acl(): Acl
@@ -30,7 +30,7 @@ trait PackageUtility
 
     /**
      * Make new acl instance.
-     * 
+     *
      * @return \Rexpl\LaravelAcl\Acl
      */
     private function makeNewAclInstance(): Acl
@@ -41,14 +41,14 @@ trait PackageUtility
 
     /**
      * Return a valid group.
-     * 
-     * @param \Rexpl\LaravelAcl\Group|int $group
-     * 
+     *
+     * @param \Rexpl\LaravelAcl\Group|int|string $group
+     *
      * @return \Rexpl\LaravelAcl\Group
      */
-    protected function validGroup(Group|int $group): Group
+    protected function validGroup(Group|int|string $group): Group
     {
-        if (is_int($group)) $group = $this->acl()->group($group);
+        if (is_scalar($group)) $group = $this->acl()->group($group);
 
         return $group;
     }

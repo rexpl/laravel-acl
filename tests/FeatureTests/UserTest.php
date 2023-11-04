@@ -9,7 +9,7 @@ use Rexpl\LaravelAcl\Exceptions\UnknownPermissionException;
 use Rexpl\LaravelAcl\Facades\Acl;
 use Rexpl\LaravelAcl\Internal\StdAclRow;
 use Rexpl\LaravelAcl\Models\Group as GroupModel;
-use Rexpl\LaravelAcl\Models\GroupDependency;
+use Rexpl\LaravelAcl\Models\GroupAccess;
 use Rexpl\LaravelAcl\Record;
 use Rexpl\LaravelAcl\Tests\test_models\TestModel;
 use Rexpl\LaravelAcl\Tests\test_models\User;
@@ -181,7 +181,7 @@ class UserTest extends TestCase
         // We now verify the group is successfully added to the new record.
         $this->assertTrue(
             $recordAcl->record()->contains(
-                function (GroupDependency $row, $key) use ($group): bool {
+                function (GroupAccess $row, $key) use ($group): bool {
 
                     if (
                         $group->id() === $row->group_id

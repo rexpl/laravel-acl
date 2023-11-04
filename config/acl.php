@@ -3,47 +3,63 @@
 return [
 
     /**
-     * Iteration count. (see documentation)
-     * 
-     * @var int
+     * Iteration count (see documentation).
      */
     'nFactor' => 3,
 
     /**
      * Automatically make gates for each permission.
-     * 
-     * @var bool
      */
-    'gates' => false,
+    'gates' => true,
 
     /**
-     * Cache user's acl. (highly recommended)
-     * 
-     * @var bool
+     * Cache user's acl (highly recommended).
      */
     'cache' => true,
 
     /**
-     * How long to cache each users acl info.
+     * How long to cache each user acl info.
      * Duration: seconds
-     * 
-     * @var int
      */
     'duration' => 604800, // 1 week
 
     /**
      * Cache records acl.
-     * 
-     * @var bool
      */
     'record_cache' => true,
 
     /**
      * How long to cache each records acl info.
      * Duration: seconds
-     * 
-     * @var int
      */
     'record_duration' => 300, // 5 minutes
+
+
+    /**
+     * Database configuration.
+     */
+    'database' => [
+
+        /**
+         * The primary key's type.
+         * @implements \Rexpl\LaravelAcl\Contracts\PrimaryKeyContract
+         */
+        'primary_key' => \Rexpl\LaravelAcl\Support\UnsignedBigIntegerPrimaryKey::class,
+
+        /**
+         * The database connection to use.
+         */
+        'connection' => env('DB_CONNECTION'),
+
+        /**
+         * Table prefix, applied to all package tables.
+         */
+        'prefix' => 'rexpl_acl',
+
+        /**
+         * Indicates if the tables should be timestamped.
+         */
+        'timestamps' => false,
+    ],
 
 ];

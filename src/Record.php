@@ -7,7 +7,7 @@ namespace Rexpl\LaravelAcl;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Rexpl\LaravelAcl\Internal\ModelToId;
-use Rexpl\LaravelAcl\Models\GroupDependency;
+use Rexpl\LaravelAcl\Models\GroupAccess;
 use Illuminate\Support\Facades\Cache;
 use Rexpl\LaravelAcl\Exceptions\UnknownPermissionException;
 use Rexpl\LaravelAcl\Internal\PackageUtility;
@@ -107,9 +107,9 @@ final class Record
     /**
      * The model id.
      *
-     * @var int
+     * @var int|string
      */
-    protected int $modelId;
+    protected int|string $modelId;
 
 
     /**
@@ -207,7 +207,7 @@ final class Record
     /**
      * Loops through each user group to see if it matches.
      *
-     * @param array<int> $groups
+     * @param array<int|string> $groups
      * @param array<int> $neededLevel
      *
      * @return bool
@@ -226,12 +226,12 @@ final class Record
     /**
      * See if there is match between the group array and the record array.
      *
-     * @param int $group
+     * @param int|string $group
      * @param array<int> $neededLevel
      *
      * @return bool
      */
-    protected function isMatch(int $group, array $neededLevel): bool
+    protected function isMatch(int|string $group, array $neededLevel): bool
     {
         foreach ($this->record() as $row) {
 
@@ -254,7 +254,7 @@ final class Record
     {
         if (!$this->isRecordFetched) {
 
-            $this->record = GroupDependency::where('model_id', $this->modelId)
+            $this->record = GroupAccess::where('model_id', $this->modelId)
                 ->where('record_id', $this->recordId)
                 ->get();
 
@@ -268,13 +268,13 @@ final class Record
     /**
      * Assign new group to the record.
      *
-     * @param \Rexpl\LaravelAcl\Group|int $group
+     * @param \Rexpl\LaravelAcl\Group|int|string $group
      * @param int $level
      *
      * @return void
      * @throws \Rexpl\LaravelAcl\Exceptions\UnknownPermissionException
      */
-    public function assign(Group|int $group, int $level): void
+    public function assign(Group|int|string $group, int $level): void
     {
         if (!in_array($level, self::FULL_RANGE)) {
 
@@ -283,7 +283,7 @@ final class Record
             );
         }
 
-        GroupDependency::updateOrCreate(
+        GroupAccess::updateOrCreate(
             [
                 'model_id' => $this->modelId,
                 'record_id' => $this->recordId,
@@ -297,13 +297,13 @@ final class Record
     /**
      * Remove group from record.
      *
-     * @param \Rexpl\LaravelAcl\Group|int $group
+     * @param \Rexpl\LaravelAcl\Group|int|string $group
      *
      * @return void
      */
-    public function remove(Group|int $group): void
+    public function remove(Group|int|string $group): void
     {
-        GroupDependency::where('model_id', $this->modelId)
+        GroupAccess::where('model_id', $this->modelId)
             ->where('record_id', $this->recordId)
             ->where('group_id', $this->validGroup($group)->id())
             ->delete();
@@ -328,7 +328,7 @@ final class Record
      */
     public function delete(): void
     {
-        GroupDependency::where('model_id', $this->modelId)
+        GroupAccess::where('model_id', $this->modelId)
             ->where('record_id', $this->recordId)
             ->delete();
     }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Rexpl\LaravelAcl\Internal\GroupPermissions;
 use Rexpl\LaravelAcl\Internal\PackageUtility;
 use Rexpl\LaravelAcl\Models\Group as GroupModel;
-use Rexpl\LaravelAcl\Models\GroupDependency;
+use Rexpl\LaravelAcl\Models\GroupAccess;
 use Rexpl\LaravelAcl\Models\GroupPermission;
 use Rexpl\LaravelAcl\Models\GroupUser;
 use Rexpl\LaravelAcl\Models\ParentGroup;
@@ -30,9 +30,9 @@ final class Group
     /**
      * Returns the group ID.
      *
-     * @return int
+     * @return int|string
      */
-    public function id(): int
+    public function id(): int|string
     {
         return $this->group->id;
     }
@@ -81,11 +81,11 @@ final class Group
     /**
      * Remove parent group.
      *
-     * @param \Rexpl\LaravelAcl\Group|int $group
+     * @param \Rexpl\LaravelAcl\Group|int|string $group
      *
      * @return static
      */
-    public function removeParentGroup(Group|int $group): static
+    public function removeParentGroup(Group|int|string $group): static
     {
         ParentGroup::where('child_id', $this->group()->id)
             ->where('parent_id', $this->validGroup($group)->id())
@@ -109,11 +109,11 @@ final class Group
     /**
      * Add a child group.
      *
-     * @param \Rexpl\LaravelAcl\Group|int $group
+     * @param \Rexpl\LaravelAcl\Group|int|string $group
      *
      * @return static
      */
-    public function addChildGroup(Group|int $group): static
+    public function addChildGroup(Group|int|string $group): static
     {
         $this->validGroup($group)->addParentGroup($this);
 
@@ -186,14 +186,14 @@ final class Group
     /**
      * Cleans data associated to any kind of group.
      *
-     * @param int $id
+     * @param int|string $id
      *
      * @return void
      */
-    protected function cleanGroup(int $id): void
+    protected function cleanGroup(int|string $id): void
     {
         GroupUser::where('group_id', $id)->delete();
-        GroupDependency::where('group_id', $id)->delete();
+        GroupAccess::where('group_id', $id)->delete();
         GroupPermission::where('group_id', $id)->delete();
         ParentGroup::where('child_id', $id)
             ->orWhere('parent_id', $id)->delete();
