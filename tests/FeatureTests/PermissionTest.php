@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rexpl\LaravelAcl\Tests\UnitTest;
+namespace Rexpl\LaravelAcl\Tests\FeatureTests;
 
 use Rexpl\LaravelAcl\Facades\Acl;
 use Rexpl\LaravelAcl\Tests\TestCase;
@@ -11,7 +11,7 @@ class PermissionTest extends TestCase
 {
     /**
      * Test the creation/deletion of permissions.
-     * 
+     *
      * @return void
      */
     public function test_permission_crud(): void

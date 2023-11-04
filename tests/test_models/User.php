@@ -1,6 +1,6 @@
 <?php
 
-namespace Rexpl\LaravelAcl\Tests\Models;
+namespace Rexpl\LaravelAcl\Tests\test_models;
 
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
