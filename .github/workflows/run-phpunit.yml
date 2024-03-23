@@ -13,7 +13,7 @@ jobs:
         stability: [prefer-stable]
         laravel: [10.*, 11.*]
 
-    name: P${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: PHP${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
     steps:
       - name: Checkout code
