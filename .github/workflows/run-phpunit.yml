@@ -11,6 +11,7 @@ jobs:
         os: [ubuntu-latest]
         php: [8.2]
         stability: [prefer-stable]
+        laravel: [10.*, 11.*]
 
     name: P${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
@@ -31,7 +32,9 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Install dependencies
-        run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+        run: |
+            composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
+            composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
       - name: Execute tests
         run: vendor/bin/phpunit
